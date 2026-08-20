@@ -2,6 +2,14 @@
 
 All notable changes to this package are documented here.
 
+## [2.0.0] - 2026-08-20
+
+### Changed
+
+- Require VM Unity Automation 0.3.0 and publish its renamed Automation-owned
+  schema extensions through framework project-tool contracts.
+- Remove the final retired-transport terminology from current package history.
+
 ## [1.1.3] - 2026-08-20
 
 ### Fixed
@@ -28,7 +36,7 @@ All notable changes to this package are documented here.
 ### Changed
 
 - Require VM Unity Automation 0.2.0 and its transport-neutral public API after
-  removal of the retired MCP route and type surface.
+  removal of the retired route and type surface.
 
 ## [1.0.3] - 2026-08-20
 
