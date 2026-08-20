@@ -2,6 +2,13 @@
 
 All notable changes to this package are documented here.
 
+## [1.1.0] - 2026-08-20
+
+### Changed
+
+- Require VM Unity Automation 0.2.0 and its transport-neutral public API after
+  removal of the retired MCP route and type surface.
+
 ## [1.0.3] - 2026-08-20
 
 ### Fixed
