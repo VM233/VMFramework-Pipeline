@@ -2,6 +2,13 @@
 
 All notable changes to this package are documented here.
 
+## [1.1.2] - 2026-08-20
+
+### Fixed
+
+- Require VM Unity Automation 0.2.3 so all framework contracts compile against
+  the complete transport-neutral public API.
+
 ## [1.1.1] - 2026-08-20
 
 ### Fixed
