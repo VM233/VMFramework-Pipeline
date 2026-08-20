@@ -2,6 +2,13 @@
 
 All notable changes to this package are documented here.
 
+## [1.1.3] - 2026-08-20
+
+### Fixed
+
+- Require VM Unity Automation 0.2.4 after removal of the last retired
+  transport-route metadata.
+
 ## [1.1.2] - 2026-08-20
 
 ### Fixed
