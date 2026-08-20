@@ -2,6 +2,13 @@
 
 All notable changes to this package are documented here.
 
+## [1.0.1] - 2026-08-20
+
+### Changed
+
+- Require VM Unity Automation 0.1.5 so CLI discovery reports this package as
+  the owner of its 28 framework project tools.
+
 ## [1.0.0] - 2026-08-20
 
 ### Added
