@@ -1,0 +1,31 @@
+{
+  "name": "com.vm233.vmframework-pipeline",
+  "version": "1.0.0",
+  "displayName": "VMFramework Pipeline",
+  "description": "VMFramework-aware project tools for the official Unity CLI Pipeline automation catalog.",
+  "unity": "6000.4",
+  "author": {
+    "name": "VM233"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/VM233/VMFramework-Pipeline.git"
+  },
+  "license": "MIT",
+  "type": "tool",
+  "dependencies": {
+    "com.vm233.unity-automation": "0.1.4",
+    "com.unity.localization": "1.5.12",
+    "com.vm233.vm-odin-extensions": "1.0.0",
+    "com.vm233.vmcore": "1.0.1",
+    "com.vm233.vmframework": "1.0.0"
+  },
+  "keywords": [
+    "vmframework",
+    "cli",
+    "pipeline",
+    "unity",
+    "editor",
+    "automation"
+  ]
+}

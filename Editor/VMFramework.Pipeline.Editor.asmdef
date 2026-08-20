@@ -1,0 +1,23 @@
+{
+  "name": "VMFramework.Pipeline.Editor",
+  "rootNamespace": "VMFramework.Pipeline.Editor",
+    "references": [
+    "VMUnityAutomation.Editor",
+    "Unity.Localization",
+    "Unity.Localization.Editor",
+    "VMCore",
+    "VMOdinExtensions",
+    "VMFramework"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

@@ -1,0 +1,28 @@
+{
+  "name": "VMFramework.Pipeline.Editor.Tests",
+  "rootNamespace": "VMFramework.Pipeline.Editor.Tests",
+  "references": [
+    "VMUnityAutomation.Editor",
+    "VMFramework.Pipeline.Editor",
+    "VMFramework",
+    "VMOdinExtensions",
+    "Unity.Localization",
+    "Sirenix.Serialization"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [
+    "Sirenix.Serialization.dll"
+  ],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}
