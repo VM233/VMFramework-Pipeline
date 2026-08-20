@@ -2,6 +2,13 @@
 
 All notable changes to this package are documented here.
 
+## [1.1.1] - 2026-08-20
+
+### Fixed
+
+- Require VM Unity Automation 0.2.1 with the corrected split-contract compile
+  surface.
+
 ## [1.1.0] - 2026-08-20
 
 ### Changed
