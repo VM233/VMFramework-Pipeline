@@ -27,7 +27,7 @@ CLI commands. Their schemas remain fully available only when requested.
 - Unity 6000.4 or newer.
 - The official Unity CLI and `com.unity.pipeline` versions supported by
   `VMUnityPipeline`.
-- `com.vm233.unity-automation` 0.1.5.
+- `com.vm233.unity-automation` 0.1.6.
 - The VMFramework, VMCore, VM Odin Extensions, and Unity Localization
   dependencies declared by `package.json`.
 
@@ -37,7 +37,7 @@ Pin both this package and its Automation owner directly in the consuming
 project with immutable remote Git revisions:
 
 ```json
-"com.vm233.unity-automation": "https://github.com/VM233/VMUnityAutomation.git#ed421c331e53459424879eabe79639123575a378",
+"com.vm233.unity-automation": "https://github.com/VM233/VMUnityAutomation.git#7718a004133b4dc328349ce00bacb6b2134a4756",
 "com.vm233.vmframework-pipeline": "https://github.com/VM233/VMFramework-Pipeline.git#3002b2ba2f253e02fccb5631a4c3e7d4f5aedeb5"
 ```
 

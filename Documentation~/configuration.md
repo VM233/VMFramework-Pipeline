@@ -118,7 +118,7 @@ from their owning VMFramework GeneralSettings.
   validation is opt-in or obtained from `validate-game-tags`.
 - GameTag validation replies include the effective coverage flags so callers
   can distinguish team defaults from an explicitly narrowed audit.
-- VM Unity Automation 0.1.5 preserves `inputSchema` and `outputSchema`
+- VM Unity Automation 0.1.6 preserves `inputSchema` and `outputSchema`
   verbatim, so the reference trace's business `tags` property remains an array
   of tag records rather than being interpreted as capability metadata.
 - Catalog selection uses module `vmframework`, capability nouns derived from

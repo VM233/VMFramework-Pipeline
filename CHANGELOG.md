@@ -2,6 +2,13 @@
 
 All notable changes to this package are documented here.
 
+## [1.0.2] - 2026-08-20
+
+### Fixed
+
+- Declare the package owner once at assembly scope for thread-safe background
+  catalog discovery through VM Unity Automation 0.1.6.
+
 ## [1.0.1] - 2026-08-20
 
 ### Changed
