@@ -2,6 +2,13 @@
 
 All notable changes to this package are documented here.
 
+## [2.0.1] - 2026-08-20
+
+### Fixed
+
+- Require VM Unity Automation 0.3.1 so framework project tools consume the
+  corrected request-metadata boundary.
+
 ## [2.0.0] - 2026-08-20
 
 ### Changed
