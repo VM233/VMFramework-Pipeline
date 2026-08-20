@@ -38,7 +38,7 @@ project with immutable remote Git revisions:
 
 ```json
 "com.vm233.unity-automation": "https://github.com/VM233/VMUnityAutomation.git#bca4f6e94d30d27afb56ec28bd1042d0683f0f64",
-"com.vm233.vmframework-pipeline": "https://github.com/VM233/VMFramework-Pipeline.git#de287aa4336c1a59eb4bf8bea4d5becc46854cca"
+"com.vm233.vmframework-pipeline": "https://github.com/VM233/VMFramework-Pipeline.git#eed220c114dda4e5181a833d3df3ea185b4547ec"
 ```
 
 Let Unity update `Packages/packages-lock.json`. Do not use a local package,
