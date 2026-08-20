@@ -2,6 +2,13 @@
 
 All notable changes to this package are documented here.
 
+## [1.0.3] - 2026-08-20
+
+### Fixed
+
+- Require VM Unity Automation 0.1.7 so the framework package owner survives
+  adaptation into the bounded CLI catalog.
+
 ## [1.0.2] - 2026-08-20
 
 ### Fixed
