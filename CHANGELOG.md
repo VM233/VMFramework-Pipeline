@@ -2,6 +2,13 @@
 
 All notable changes to this package are documented here.
 
+## [2.0.2] - 2026-08-21
+
+### Fixed
+
+- Require VM Unity Automation 0.3.23 so framework project tools share the
+  corrected VFX Block Activation Slot contract.
+
 ## [2.0.1] - 2026-08-20
 
 ### Fixed
