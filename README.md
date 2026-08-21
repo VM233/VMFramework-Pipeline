@@ -27,7 +27,7 @@ CLI commands. Their schemas remain fully available only when requested.
 - Unity 6000.4 or newer.
 - The official Unity CLI and `com.unity.pipeline` versions supported by
   `VMUnityPipeline`.
-- `com.vm233.unity-automation` 0.3.1.
+- `com.vm233.unity-automation` 0.3.23.
 - The VMFramework, VMCore, VM Odin Extensions, and Unity Localization
   dependencies declared by `package.json`.
 
@@ -67,11 +67,11 @@ stay bounded without paying process startup and discovery cost each time.
 
 ## Capability families
 
-The package publishes 28 canonical `vmframework/...` contracts covering:
+The package publishes 29 canonical `vmframework/...` contracts covering:
 
 - effective settings and GeneralSettings discovery;
-- GamePrefab type discovery, search, config query, inspection, creation, and
-  transactional update;
+- GamePrefab type discovery, search, config query, inspection, creation,
+  transactional update, and complete Prefab-reference validation;
 - GameTag listing, localized upsert, and validation;
 - UI panel, bind-object, container-panel, and VisualElementPath inspection;
 - PropertyManager reads, runtime writes, and bounded traces;

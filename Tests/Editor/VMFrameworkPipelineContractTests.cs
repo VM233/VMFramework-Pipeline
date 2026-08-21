@@ -42,6 +42,7 @@ namespace VMFramework.Pipeline.Editor.Tests
             "vmframework/update-game-prefab",
             "vmframework/upsert-game-tag",
             "vmframework/validate-game-tags",
+            "vmframework/validate-game-prefabs",
             "vmframework/validate-visual-element-paths",
         };
 
@@ -54,6 +55,7 @@ namespace VMFramework.Pipeline.Editor.Tests
                 "vmframework/reference-trace",
                 "vmframework/runtime-game-item-session",
                 "vmframework/runtime-ui-panel",
+                "vmframework/validate-game-prefabs",
             };
 
         [Test]

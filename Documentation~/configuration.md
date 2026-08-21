@@ -1,6 +1,6 @@
 # VMFramework Pipeline configuration and project-tool audit
 
-This document is the configuration review for the 28-tool VMFramework Pipeline
+This document is the configuration review for the 29-tool VMFramework Pipeline
 catalog. The tool-catalog regression test owns the exact list, requires one
 operation kind per tool, requires strict schemas, and registers every valid
 tool in the bounded Automation catalog consumed by `vm_automation_call`.
@@ -68,6 +68,7 @@ each VMFramework tool keeps its own hard maximum.
 | `list-game-tags` | Shared result limit | ID/group/filter and locale-value expansion remain explicit; locale values default off. |
 | `upsert-game-tag` | None | Group, ID, localization keys/values, registration, and dry-run choices define the mutation. Framework `GameTagGeneralSetting` remains the localization-table authority. Global post-validation is opt-in because the dedicated validation tool owns normal audits. |
 | `validate-game-tags` | Team validation coverage; shared issue limit | Explicit coverage flags can narrow one call. |
+| `validate-game-prefabs` | Shared issue limit | Scans every discoverable GamePrefab Wrapper. `maxIssues` bounds only returned records; aggregate counts and `passed` always cover the complete bounded scan. |
 | `get-property` | None | Manager and property selectors remain explicit. |
 | `set-property` | None | Target, value, and `initial` are runtime mutation inputs. The tool is classified as runtime-mutating and requires Play Mode. |
 | `start-property-trace` | VMFramework retained-event preference | Target/filter/child traversal remain explicit. Starting a trace mutates diagnostic session state and is not read-only. |

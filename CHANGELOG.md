@@ -2,6 +2,15 @@
 
 All notable changes to this package are documented here.
 
+## [2.1.0] - 2026-08-21
+
+### Added
+
+- Add the read-only `vmframework/validate-game-prefabs` project tool. It scans
+  every discoverable GamePrefab Wrapper and reports null configs plus missing,
+  destroyed, or unreadable `IPrefabProvider.Prefab` references with bounded
+  structured issues and complete aggregate counts.
+
 ## [2.0.3] - 2026-08-21
 
 ### Fixed
