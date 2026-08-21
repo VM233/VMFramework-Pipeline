@@ -674,6 +674,15 @@ namespace VMFramework.Pipeline.Editor
             if (type.IsPrimitive || type.IsEnum || value is string || value is decimal) return value;
             if (value is Object unityObject)
             {
+                if (unityObject == null)
+                {
+                    return new Dictionary<string, object>
+                    {
+                        { "$type", type.FullName },
+                        { "$destroyed", true },
+                    };
+                }
+
                 AssetDatabase.TryGetGUIDAndLocalFileIdentifier(unityObject, out var guid, out long fileID);
                 return new Dictionary<string, object>
                 {

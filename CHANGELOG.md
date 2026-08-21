@@ -2,6 +2,13 @@
 
 All notable changes to this package are documented here.
 
+## [2.0.3] - 2026-08-21
+
+### Fixed
+
+- Serialize destroyed Unity object references as explicit diagnostic values
+  instead of dereferencing them and aborting GamePrefab inspect/update tools.
+
 ## [2.0.2] - 2026-08-21
 
 ### Fixed

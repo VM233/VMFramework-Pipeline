@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Tables;
 using VMFramework.GameLogicArchitecture;
@@ -115,6 +116,23 @@ namespace VMFramework.Pipeline.Editor.Tests
             var entryReference = (Dictionary<string, object>)result["m_TableEntryReference"];
             Assert.That(tableReference["m_TableCollectionName"], Is.EqualTo("Property"));
             Assert.That(entryReference["m_Key"], Is.EqualTo("AttackRangePropertyName"));
+        }
+
+        [Test]
+        public void DescribeSerializedValue_ReportsDestroyedUnityObjectWithoutDereferencingIt()
+        {
+            MethodInfo describe = GetPrivateMethod("DescribeSerializedValue");
+            var gameObject = new GameObject("Destroyed Game Prefab Reference");
+            object boxedReference = gameObject;
+            UnityEngine.Object.DestroyImmediate(gameObject);
+
+            var result = (Dictionary<string, object>)describe.Invoke(null,
+                new object[] { boxedReference, 0, 8, 100, new HashSet<object>() });
+
+            Assert.That(result["$type"], Is.EqualTo(typeof(GameObject).FullName));
+            Assert.That(result["$destroyed"], Is.EqualTo(true));
+            Assert.That(result.ContainsKey("name"), Is.False);
+            Assert.That(result.ContainsKey("assetPath"), Is.False);
         }
 
         [Test]
