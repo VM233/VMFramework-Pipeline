@@ -14,7 +14,7 @@ namespace VMFramework.Pipeline.Editor
         [VmRequired]
         [VmJsonProperty("severity")]
         [VmMinLength(1)]
-        [Description("Validation severity. GamePrefab Prefab contract failures are errors.")]
+        [Description("Validation severity. GamePrefab registration and Prefab contract failures are errors.")]
         public string Severity { get; set; }
 
         [VmRequired]
@@ -29,7 +29,7 @@ namespace VMFramework.Pipeline.Editor
 
         [VmRequired]
         [VmJsonProperty("wrapperPath")]
-        [Description("Asset path of the GamePrefabWrapper that owns the invalid config.")]
+        [Description("Asset path of the GamePrefabWrapper that owns the invalid config, or the provider source when wrapper data is unavailable.")]
         public string WrapperPath { get; set; }
 
         [VmRequired]

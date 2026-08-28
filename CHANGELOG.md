@@ -2,6 +2,15 @@
 
 All notable changes to this package are documented here.
 
+## [2.1.1] - 2026-08-28
+
+### Fixed
+
+- Make `vmframework/validate-game-prefabs` compare every discoverable config
+  with the runtime `GlobalSettingCollector` provider graph, report
+  `unregistered_game_prefab`, and expose registered/unregistered aggregate
+  counts so orphan wrappers can no longer pass the final audit.
+
 ## [2.1.0] - 2026-08-21
 
 ### Added

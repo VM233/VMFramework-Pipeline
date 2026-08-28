@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 using VMFramework.Core;
@@ -9,6 +10,38 @@ namespace VMFramework.Pipeline.Editor.Tests
 {
     public class VMFrameworkGamePrefabValidationToolTests
     {
+        [Test]
+        public void CreateRegistrationIssue_RequiresExactRuntimeReachability()
+        {
+            var registered = new FixtureGamePrefab
+            {
+                id = "registered_fixture",
+            };
+            var runtimeGamePrefabs = new HashSet<IGamePrefab>
+            {
+                registered,
+            };
+
+            Assert.That(VMFrameworkGamePrefabValidationTool.CreateRegistrationIssue(
+                "Assets/RegisteredFixture.asset", registered,
+                runtimeGamePrefabs), Is.Null);
+
+            var orphan = new FixtureGamePrefab
+            {
+                id = registered.id,
+            };
+            VMFrameworkGamePrefabValidationIssue issue =
+                VMFrameworkGamePrefabValidationTool.CreateRegistrationIssue(
+                    "Assets/OrphanFixture.asset", orphan,
+                    runtimeGamePrefabs);
+
+            Assert.That(issue, Is.Not.Null);
+            Assert.That(issue.Code, Is.EqualTo("unregistered_game_prefab"));
+            Assert.That(issue.GamePrefabId, Is.EqualTo("registered_fixture"));
+            Assert.That(issue.Member,
+                Is.EqualTo("IGamePrefabsProvider.GetGamePrefabs"));
+        }
+
         [Test]
         public void CreatePrefabReferenceIssue_ReportsNullAndDestroyedPrefabs()
         {

@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEditor;
 using VMFramework.Core;
 using VMFramework.GameLogicArchitecture;
@@ -17,7 +18,7 @@ namespace VMFramework.Pipeline.Editor
         private const int MaximumIssues = 5000;
 
         [VmProjectTool(ToolName,
-            Description = "Validate every discoverable VMFramework GamePrefabWrapper and report null GamePrefab entries plus missing or unreadable IPrefabProvider.Prefab references.",
+            Description = "Validate every discoverable VMFramework GamePrefabWrapper, including runtime registration reachability, null GamePrefab entries, and missing or unreadable IPrefabProvider.Prefab references.",
             ReadOnly = true,
             ErrorCodes = new[]
             {
@@ -31,11 +32,14 @@ namespace VMFramework.Pipeline.Editor
             int maxIssues = VMFrameworkPipelineSettingsManager.ResolveResultLimit(
                 request.MaxIssues, 500, MaximumIssues);
             List<WrapperRecord> wrappers = CollectWrappers();
+            HashSet<IGamePrefab> runtimeGamePrefabs = CollectRuntimeGamePrefabs();
             var issues = new List<VMFrameworkGamePrefabValidationIssue>(
                 Math.Min(maxIssues, 128));
             var gamePrefabs = new List<IGamePrefab>();
             int gamePrefabEntryCount = 0;
             int gamePrefabCount = 0;
+            int registeredGamePrefabCount = 0;
+            int unregisteredGamePrefabCount = 0;
             int prefabProviderCount = 0;
             int missingPrefabCount = 0;
             int errorCount = 0;
@@ -72,6 +76,20 @@ namespace VMFramework.Pipeline.Editor
                     }
 
                     gamePrefabCount++;
+                    VMFrameworkGamePrefabValidationIssue registrationIssue =
+                        CreateRegistrationIssue(wrapper.Path, gamePrefab,
+                            runtimeGamePrefabs);
+                    if (registrationIssue == null)
+                    {
+                        registeredGamePrefabCount++;
+                    }
+                    else
+                    {
+                        unregisteredGamePrefabCount++;
+                        AddIssue(registrationIssue, issues, maxIssues,
+                            ref errorCount);
+                    }
+
                     if (!(gamePrefab is IPrefabProvider))
                     {
                         continue;
@@ -99,6 +117,8 @@ namespace VMFramework.Pipeline.Editor
                 Passed = errorCount == 0,
                 WrapperCount = wrappers.Count,
                 GamePrefabCount = gamePrefabCount,
+                RegisteredGamePrefabCount = registeredGamePrefabCount,
+                UnregisteredGamePrefabCount = unregisteredGamePrefabCount,
                 PrefabProviderCount = prefabProviderCount,
                 MissingPrefabCount = missingPrefabCount,
                 ErrorCount = errorCount,
@@ -107,6 +127,22 @@ namespace VMFramework.Pipeline.Editor
                 Truncated = issues.Count < errorCount,
                 Issues = issues,
             };
+        }
+
+        internal static VMFrameworkGamePrefabValidationIssue CreateRegistrationIssue(
+            string wrapperPath, IGamePrefab gamePrefab,
+            ISet<IGamePrefab> runtimeGamePrefabs)
+        {
+            if (runtimeGamePrefabs.Contains(gamePrefab))
+            {
+                return null;
+            }
+
+            return CreateIssue("unregistered_game_prefab", gamePrefab,
+                wrapperPath, "IGamePrefabsProvider.GetGamePrefabs",
+                $"GamePrefab '{gamePrefab.id}' is discoverable through wrapper " +
+                $"'{wrapperPath}' but is unreachable from the runtime " +
+                "GlobalSettingCollector provider graph.");
         }
 
         internal static VMFrameworkGamePrefabValidationIssue CreatePrefabReferenceIssue(
@@ -176,6 +212,86 @@ namespace VMFramework.Pipeline.Editor
             records.Sort((left, right) => string.Compare(left.Path, right.Path,
                 StringComparison.Ordinal));
             return records;
+        }
+
+        private static HashSet<IGamePrefab> CollectRuntimeGamePrefabs()
+        {
+            var collected = new List<IGamePrefab>();
+            try
+            {
+                foreach (IGeneralSetting generalSetting in
+                         GlobalSettingCollector.GetAllGeneralSettings())
+                {
+                    if (generalSetting is GamePrefabGeneralSetting gamePrefabSetting)
+                    {
+                        CollectInitialGamePrefabProviders(gamePrefabSetting,
+                            collected);
+                    }
+                    else if (generalSetting is IGamePrefabsProvider provider)
+                    {
+                        provider.GetGamePrefabs(collected);
+                    }
+
+                    if (collected.Count > MaximumGamePrefabs)
+                    {
+                        throw CreateCapacityException("runtimeGamePrefabs",
+                            MaximumGamePrefabs, collected.Count);
+                    }
+                }
+            }
+            catch (VmProjectToolException)
+            {
+                throw;
+            }
+            catch (Exception exception)
+            {
+                throw new VmProjectToolException(
+                    "game_prefab_validation_scan_failed",
+                    "Runtime GamePrefab provider collection failed: " +
+                    exception.GetBaseException().Message, false,
+                    new Dictionary<string, object>
+                    {
+                        { "exceptionType", exception.GetType().FullName },
+                    });
+            }
+
+            var runtimeGamePrefabs = new HashSet<IGamePrefab>(
+                GamePrefabReferenceComparer.Instance);
+            foreach (IGamePrefab gamePrefab in collected)
+            {
+                if (gamePrefab != null)
+                {
+                    runtimeGamePrefabs.Add(gamePrefab);
+                }
+            }
+
+            return runtimeGamePrefabs;
+        }
+
+        private static void CollectInitialGamePrefabProviders(
+            GamePrefabGeneralSetting setting,
+            ICollection<IGamePrefab> gamePrefabs)
+        {
+            if (setting.initialGamePrefabProviders == null)
+            {
+                return;
+            }
+
+            foreach (IGamePrefabsProvider provider in
+                     setting.initialGamePrefabProviders)
+            {
+                if (provider.IsUnityNull())
+                {
+                    continue;
+                }
+
+                provider.GetGamePrefabs(gamePrefabs);
+                if (gamePrefabs.Count > MaximumGamePrefabs)
+                {
+                    throw CreateCapacityException("runtimeGamePrefabs",
+                        MaximumGamePrefabs, gamePrefabs.Count);
+                }
+            }
         }
 
         private static VmProjectToolException CreateCapacityException(
@@ -259,6 +375,22 @@ namespace VMFramework.Pipeline.Editor
             {
                 Wrapper = wrapper;
                 Path = path;
+            }
+        }
+
+        private sealed class GamePrefabReferenceComparer :
+            IEqualityComparer<IGamePrefab>
+        {
+            public static readonly GamePrefabReferenceComparer Instance = new();
+
+            public bool Equals(IGamePrefab left, IGamePrefab right)
+            {
+                return ReferenceEquals(left, right);
+            }
+
+            public int GetHashCode(IGamePrefab gamePrefab)
+            {
+                return RuntimeHelpers.GetHashCode(gamePrefab);
             }
         }
     }

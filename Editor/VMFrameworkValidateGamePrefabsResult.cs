@@ -22,6 +22,16 @@ namespace VMFramework.Pipeline.Editor
         public int GamePrefabCount { get; set; }
 
         [VmRequired]
+        [VmJsonProperty("registeredGamePrefabCount")]
+        [Description("Number of discoverable GamePrefab configs reachable through the runtime GlobalSettingCollector provider graph.")]
+        public int RegisteredGamePrefabCount { get; set; }
+
+        [VmRequired]
+        [VmJsonProperty("unregisteredGamePrefabCount")]
+        [Description("Number of discoverable GamePrefab configs unreachable through the runtime GlobalSettingCollector provider graph.")]
+        public int UnregisteredGamePrefabCount { get; set; }
+
+        [VmRequired]
         [VmJsonProperty("prefabProviderCount")]
         [Description("Number of GamePrefab configs implementing IPrefabProvider.")]
         public int PrefabProviderCount { get; set; }
