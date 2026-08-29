@@ -2,6 +2,16 @@
 
 All notable changes to this package are documented here.
 
+## [2.1.2] - 2026-08-29
+
+### Fixed
+
+- Require VM Unity Automation 0.3.60 so framework project-tool adoption uses
+  durable clean-compilation jobs that prove every expected script assembly
+  actually completed.
+- Normalize the 2.1.1 GamePrefab validation sources and regression fixture
+  through the package's deterministic Unity GUID owner.
+
 ## [2.1.1] - 2026-08-28
 
 ### Fixed
