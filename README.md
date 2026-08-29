@@ -27,7 +27,7 @@ CLI commands. Their schemas remain fully available only when requested.
 - Unity 6000.4 or newer.
 - The official Unity CLI and `com.unity.pipeline` versions supported by
   `VMUnityPipeline`.
-- `com.vm233.unity-automation` 0.3.61.
+- `com.vm233.unity-automation` 0.3.62.
 - The VMFramework, VMCore, VM Odin Extensions, and Unity Localization
   dependencies declared by `package.json`.
 

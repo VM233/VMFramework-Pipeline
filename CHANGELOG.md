@@ -2,6 +2,13 @@
 
 All notable changes to this package are documented here.
 
+## [2.1.4] - 2026-08-29
+
+### Fixed
+
+- Require VM Unity Automation 0.3.62 so framework adoption uses exact assembly
+  output identities and Unity 6-compatible CleanBuildCache terminal evidence.
+
 ## [2.1.3] - 2026-08-29
 
 ### Fixed
