@@ -2,6 +2,14 @@
 
 All notable changes to this package are documented here.
 
+## [2.1.3] - 2026-08-29
+
+### Fixed
+
+- Require VM Unity Automation 0.3.61 so framework package adoption accepts
+  Unity's documented CleanBuildCache rebuild only after every expected assembly
+  has both build-start and precise terminal callback evidence.
+
 ## [2.1.2] - 2026-08-29
 
 ### Fixed
