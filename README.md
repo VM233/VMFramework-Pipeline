@@ -71,8 +71,8 @@ The package publishes 29 canonical `vmframework/...` contracts covering:
 
 - effective settings and GeneralSettings discovery;
 - GamePrefab type discovery, search, config query, inspection, creation,
-  transactional update, and complete runtime-registration and Prefab-reference
-  validation;
+  transactional update, and complete runtime-registration, Prefab-reference,
+  and Prefab-name/id validation;
 - GameTag listing, localized upsert, and validation;
 - UI panel, bind-object, container-panel, and VisualElementPath inspection;
 - PropertyManager reads, runtime writes, and bounded traces;

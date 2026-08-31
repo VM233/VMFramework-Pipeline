@@ -2,6 +2,17 @@
 
 All notable changes to this package are documented here.
 
+## [2.2.0] - 2026-08-31
+
+### Added
+
+- Make `vmframework/validate-game-prefabs` enforce the framework's existing
+  Prefab-name-to-GamePrefab-id alignment rule, including each config's declared
+  id suffix.
+- Report `prefab_name_id_mismatch` with the referenced Prefab path/name and the
+  id derived from that name, plus a complete `prefabNameMismatchCount`
+  aggregate for CI and CLI consumers.
+
 ## [2.1.5] - 2026-08-31
 
 ### Fixed

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEditor;
+using UnityEngine;
 using VMFramework.Core;
 using VMFramework.GameLogicArchitecture;
 using VMUnityAutomation.Editor;
@@ -18,7 +19,7 @@ namespace VMFramework.Pipeline.Editor
         private const int MaximumIssues = 5000;
 
         [VmProjectTool(ToolName,
-            Description = "Validate every discoverable VMFramework GamePrefabWrapper, including runtime registration reachability, null GamePrefab entries, and missing or unreadable IPrefabProvider.Prefab references.",
+            Description = "Validate every discoverable VMFramework GamePrefabWrapper, including runtime registration reachability, null GamePrefab entries, missing or unreadable IPrefabProvider.Prefab references, and Prefab names that do not align with their GamePrefab ids and declared id suffixes.",
             ReadOnly = true,
             ErrorCodes = new[]
             {
@@ -42,6 +43,7 @@ namespace VMFramework.Pipeline.Editor
             int unregisteredGamePrefabCount = 0;
             int prefabProviderCount = 0;
             int missingPrefabCount = 0;
+            int prefabNameMismatchCount = 0;
             int errorCount = 0;
 
             foreach (WrapperRecord wrapper in wrappers)
@@ -97,7 +99,7 @@ namespace VMFramework.Pipeline.Editor
 
                     prefabProviderCount++;
                     VMFrameworkGamePrefabValidationIssue issue =
-                        CreatePrefabReferenceIssue(wrapper.Path, gamePrefab);
+                        CreatePrefabContractIssue(wrapper.Path, gamePrefab);
                     if (issue == null)
                     {
                         continue;
@@ -107,6 +109,12 @@ namespace VMFramework.Pipeline.Editor
                             StringComparison.Ordinal))
                     {
                         missingPrefabCount++;
+                    }
+                    else if (string.Equals(issue.Code,
+                                 "prefab_name_id_mismatch",
+                                 StringComparison.Ordinal))
+                    {
+                        prefabNameMismatchCount++;
                     }
                     AddIssue(issue, issues, maxIssues, ref errorCount);
                 }
@@ -121,6 +129,7 @@ namespace VMFramework.Pipeline.Editor
                 UnregisteredGamePrefabCount = unregisteredGamePrefabCount,
                 PrefabProviderCount = prefabProviderCount,
                 MissingPrefabCount = missingPrefabCount,
+                PrefabNameMismatchCount = prefabNameMismatchCount,
                 ErrorCount = errorCount,
                 TotalIssues = errorCount,
                 ReturnedIssues = issues.Count,
@@ -145,7 +154,7 @@ namespace VMFramework.Pipeline.Editor
                 "GlobalSettingCollector provider graph.");
         }
 
-        internal static VMFrameworkGamePrefabValidationIssue CreatePrefabReferenceIssue(
+        internal static VMFrameworkGamePrefabValidationIssue CreatePrefabContractIssue(
             string wrapperPath, IGamePrefab gamePrefab)
         {
             if (!(gamePrefab is IPrefabProvider prefabProvider))
@@ -155,14 +164,33 @@ namespace VMFramework.Pipeline.Editor
 
             try
             {
-                if (prefabProvider.Prefab != null)
+                GameObject prefab = prefabProvider.Prefab;
+                if (prefab == null)
+                {
+                    return CreateIssue("missing_prefab_reference", gamePrefab,
+                        wrapperPath, "IPrefabProvider.Prefab",
+                        $"GamePrefab '{gamePrefab.id}' implements IPrefabProvider but its Prefab reference is null or destroyed.");
+                }
+
+                string prefabName = prefab.name ?? "";
+                string expectedGamePrefabId = prefabName
+                    .MakeWordsSuffix(gamePrefab.IDSuffix)
+                    .ToSnakeCase();
+                if (string.Equals(expectedGamePrefabId, gamePrefab.id,
+                        StringComparison.Ordinal))
                 {
                     return null;
                 }
 
-                return CreateIssue("missing_prefab_reference", gamePrefab,
-                    wrapperPath, "IPrefabProvider.Prefab",
-                    $"GamePrefab '{gamePrefab.id}' implements IPrefabProvider but its Prefab reference is null or destroyed.");
+                string prefabPath = AssetDatabase.GetAssetPath(prefab) ?? "";
+                return CreateIssue("prefab_name_id_mismatch", gamePrefab,
+                    wrapperPath, "IPrefabProvider.Prefab.name",
+                    $"Prefab name '{prefabName}' aligns to GamePrefab id " +
+                    $"'{expectedGamePrefabId}' using declared suffix " +
+                    $"'{gamePrefab.IDSuffix ?? ""}', but the config id is " +
+                    $"'{gamePrefab.id}'. Rename the Prefab or migrate the " +
+                    "GamePrefab id so the authoritative name alignment matches.",
+                    prefabPath, prefabName, expectedGamePrefabId);
             }
             catch (Exception exception)
             {
@@ -340,7 +368,9 @@ namespace VMFramework.Pipeline.Editor
         }
 
         private static VMFrameworkGamePrefabValidationIssue CreateIssue(string code,
-            IGamePrefab gamePrefab, string wrapperPath, string member, string message)
+            IGamePrefab gamePrefab, string wrapperPath, string member, string message,
+            string prefabPath = "", string prefabName = "",
+            string expectedGamePrefabId = "")
         {
             return new VMFrameworkGamePrefabValidationIssue
             {
@@ -351,6 +381,9 @@ namespace VMFramework.Pipeline.Editor
                 WrapperPath = wrapperPath ?? "",
                 Member = member,
                 Message = message,
+                PrefabPath = prefabPath ?? "",
+                PrefabName = prefabName ?? "",
+                ExpectedGamePrefabId = expectedGamePrefabId ?? "",
             };
         }
 

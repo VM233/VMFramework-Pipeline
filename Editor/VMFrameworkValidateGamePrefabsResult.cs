@@ -42,6 +42,11 @@ namespace VMFramework.Pipeline.Editor
         public int MissingPrefabCount { get; set; }
 
         [VmRequired]
+        [VmJsonProperty("prefabNameMismatchCount")]
+        [Description("Number of IPrefabProvider configs whose Prefab names do not align with their GamePrefab ids and declared id suffixes.")]
+        public int PrefabNameMismatchCount { get; set; }
+
+        [VmRequired]
         [VmJsonProperty("errorCount")]
         [Description("Total errors found across the complete scan.")]
         public int ErrorCount { get; set; }

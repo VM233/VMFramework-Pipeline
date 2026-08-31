@@ -43,5 +43,20 @@ namespace VMFramework.Pipeline.Editor
         [VmMinLength(1)]
         [Description("Human-readable validation failure.")]
         public string Message { get; set; }
+
+        [VmRequired]
+        [VmJsonProperty("prefabPath")]
+        [Description("Referenced Prefab asset path, or an empty string when no readable Prefab reference is available.")]
+        public string PrefabPath { get; set; } = string.Empty;
+
+        [VmRequired]
+        [VmJsonProperty("prefabName")]
+        [Description("Referenced Prefab name, or an empty string when no readable Prefab reference is available.")]
+        public string PrefabName { get; set; } = string.Empty;
+
+        [VmRequired]
+        [VmJsonProperty("expectedGamePrefabId")]
+        [Description("GamePrefab id produced from the Prefab name and declared id suffix, or an empty string when name alignment is not applicable.")]
+        public string ExpectedGamePrefabId { get; set; } = string.Empty;
     }
 }
