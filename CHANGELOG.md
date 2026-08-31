@@ -2,6 +2,15 @@
 
 All notable changes to this package are documented here.
 
+## [2.1.5] - 2026-08-31
+
+### Fixed
+
+- Resolve path-only Unity Object updates to the asset's authoritative main
+  object, so Prefab `GameObject` fields cannot silently bind an arbitrary child.
+- Accept the emitted `assetPath`/`guid`/`fileID` descriptor when callers need an
+  exact subasset identity, and reject ambiguous path-only subasset references.
+
 ## [2.1.4] - 2026-08-29
 
 ### Fixed

@@ -564,20 +564,10 @@ namespace VMFramework.Pipeline.Editor
 
             if (typeof(Object).IsAssignableFrom(targetType))
             {
-                var assetPath = value is string stringPath
-                    ? stringPath
-                    : value is Dictionary<string, object> reference && reference.TryGetValue("assetPath", out var rawPath)
-                        ? rawPath?.ToString()
-                        : null;
-                if (string.IsNullOrWhiteSpace(assetPath))
-                {
-                    throw new InvalidOperationException($"Unity Object '{path}' requires an asset path string or {{assetPath}}.");
-                }
-
-                var candidates = AssetDatabase.LoadAllAssetsAtPath(assetPath);
-                var asset = candidates.FirstOrDefault(targetType.IsInstanceOfType);
-                return asset ?? throw new InvalidOperationException(
-                    $"No asset at '{assetPath}' is assignable to '{targetType.FullName}'.");
+                return VMFrameworkUnityObjectReferenceResolver.Resolve(
+                    value,
+                    targetType,
+                    path);
             }
 
             if (targetType.IsEnum)

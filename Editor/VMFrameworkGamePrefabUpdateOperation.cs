@@ -17,7 +17,10 @@ namespace VMFramework.Pipeline.Editor
         public string Path { get; set; }
 
         [VmJsonProperty("value")]
-        [Description("Value used by set, append, or insert.")]
+        [Description(
+            "Value used by set, append, or insert. Unity Object paths " +
+            "resolve the main asset; use {assetPath,guid,fileID} for an " +
+            "exact subasset identity.")]
         public object Value { get; set; }
 
         [VmJsonProperty("index")]
