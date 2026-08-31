@@ -50,7 +50,7 @@ namespace VMFramework.Pipeline.Editor.Tests
                 "prefab");
 
             Assert.That(resolved, Is.SameAs(root));
-            Assert.That(resolved.name, Is.EqualTo("Root"));
+            Assert.That(AssetDatabase.IsMainAsset(resolved), Is.True);
         }
 
         [Test]
