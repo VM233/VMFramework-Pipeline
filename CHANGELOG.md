@@ -2,6 +2,13 @@
 
 All notable changes to this package are documented here.
 
+## [2.4.1] - 2026-09-05
+
+### Fixed
+
+- Declare snapshot application transactions with Automation's canonical mechanics so the
+  public command is accepted by catalog discovery.
+
 ## [2.4.0] - 2026-09-05
 
 ### Changed

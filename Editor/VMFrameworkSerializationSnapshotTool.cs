@@ -41,10 +41,10 @@ namespace VMFramework.Pipeline.Editor
             Description = "Apply captured authoring graphs to their current Unity serialization schema, then save, unload, reload, and compare every field and Unity reference. Each asset rolls back its bytes if readback differs.",
             MutatesAssets = true, ErrorCodes = new[] { "serialization_source_changed", "serialization_migration_failed" },
             TransactionScope = "one-asset-at-a-time",
-            TransactionAtomicity = "verified-single-asset-rollback",
-            TransactionIsolation = "source-content-hash",
-            TransactionDurability = "disk",
-            TransactionRollbackKind = "byte-snapshot",
+            TransactionAtomicity = VmTransactionMechanics.Atomicity.VerifiedSingleAssetRollback,
+            TransactionIsolation = VmTransactionMechanics.Isolation.RequestSerialized,
+            TransactionDurability = VmTransactionMechanics.Durability.EditorSession,
+            TransactionRollbackKind = VmTransactionMechanics.RollbackKind.AtomicByteSnapshot,
             TransactionCommitEvidence = new[] { "complete-authoring-graph-readback", "no-odin-payload" })]
         public static VMFrameworkSerializationSnapshotResult Apply(VMFrameworkSerializationSnapshotRequest request)
         {
