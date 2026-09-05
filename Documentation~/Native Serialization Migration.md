@@ -6,7 +6,7 @@ captured fields into the new schema and verify a real Unity save/unload/import/l
 Snapshots retain source hashes, object types, shared references, and persistent Unity identities.
 Changed source files and missing fields fail at the responsible asset. Each asset is independently
 atomic; a later asset failure does not undo previously verified assets.
-The staged reader explicitly maps the former GamePrefab tag and input-action fields to their
+The staged reader explicitly maps the former GamePrefab tag, input-action, and provider fields to their
 native fields and converts Type, Guid, and set values to the corresponding native schema.
 
 ## Static Cost Ledger

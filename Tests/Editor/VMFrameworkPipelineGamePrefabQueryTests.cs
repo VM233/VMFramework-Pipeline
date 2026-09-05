@@ -149,8 +149,8 @@ namespace VMFramework.Pipeline.Editor.Tests
                 AssetDatabase.CreateAsset(wrapper, wrapperPath);
                 var setting = UnityEngine.ScriptableObject.CreateInstance<
                     QueryFixtureGamePrefabGeneralSetting>();
-                setting.initialGamePrefabProviders.Add(wrapper);
                 AssetDatabase.CreateAsset(setting, generalSettingPath);
+                setting.AddToInitialGamePrefabProviders(wrapper);
                 AssetDatabase.SaveAssets();
             }
 

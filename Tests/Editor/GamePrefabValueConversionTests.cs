@@ -267,8 +267,8 @@ namespace VMFramework.Pipeline.Editor.Tests
             var generalSetting =
                 UnityEngine.ScriptableObject.CreateInstance<
                     RenameFixtureGamePrefabGeneralSetting>();
-            generalSetting.initialGamePrefabProviders.Add(wrapper);
             AssetDatabase.CreateAsset(generalSetting, generalSettingPath);
+            generalSetting.AddToInitialGamePrefabProviders(wrapper);
             AssetDatabase.SaveAssets();
 
             try

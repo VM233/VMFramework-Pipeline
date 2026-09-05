@@ -111,8 +111,8 @@ namespace VMFramework.Pipeline.Editor.Tests
                 AssetDatabase.CreateAsset(wrapper, wrapperPath);
                 var setting = UnityEngine.ScriptableObject.CreateInstance<
                     RenameFixtureGamePrefabGeneralSetting>();
-                setting.initialGamePrefabProviders.Add(wrapper);
                 AssetDatabase.CreateAsset(setting, generalSettingPath);
+                setting.AddToInitialGamePrefabProviders(wrapper);
                 AssetDatabase.SaveAssets();
                 Reference = VMFrameworkPipelineTools.FindGamePrefab(
                     new VMFrameworkFindGamePrefabRequest { Id = Id }).GamePrefabs.Single();

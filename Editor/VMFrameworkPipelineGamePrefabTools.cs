@@ -737,11 +737,10 @@ namespace VMFramework.Pipeline.Editor
                 foreach (var field in current.GetFields(BindingFlags.Instance | BindingFlags.Public |
                                                          BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
                 {
-                    if (field.IsStatic || field.IsNotSerialized || field.Name.Contains("k__BackingField") ||
+                    if (field.IsStatic || field.IsInitOnly || field.IsNotSerialized ||
                         !names.Add(field.Name)) continue;
-                    var attributes = field.GetCustomAttributesData();
-                    var odinSerialized = attributes.Any(attribute => attribute.AttributeType.Name == "OdinSerializeAttribute");
-                    if (field.IsPublic || field.GetCustomAttribute<SerializeField>() != null || odinSerialized)
+                    if (field.IsPublic || field.GetCustomAttribute<SerializeField>() != null ||
+                        field.GetCustomAttribute<SerializeReference>() != null)
                         yield return field;
                 }
             }

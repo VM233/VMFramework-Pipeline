@@ -15,9 +15,7 @@
   "excludePlatforms": [],
   "allowUnsafeCode": false,
   "overrideReferences": false,
-  "precompiledReferences": [
-    "Sirenix.Serialization.dll"
-  ],
+  "precompiledReferences": ["Newtonsoft.Json.dll", "Sirenix.Serialization.dll"],
   "autoReferenced": false,
   "defineConstraints": [],
   "versionDefines": [],

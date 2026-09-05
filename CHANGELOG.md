@@ -2,6 +2,18 @@
 
 All notable changes to this package are documented here.
 
+## [2.4.0] - 2026-09-05
+
+### Changed
+
+- GamePrefab field inspection now follows Unity's field and managed-reference contract.
+- Provider fixtures use the settings owner's mutation API; staged graph restore maps the
+  former provider interface list to its native Unity object references.
+
+### Fixed
+
+- Reference Newtonsoft.Json in the snapshot test assembly.
+
 ## [2.3.2] - 2026-09-05
 
 ### Fixed
