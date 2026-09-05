@@ -6,8 +6,7 @@
     "VMFramework.Pipeline.Editor",
     "VMFramework",
     "VMOdinExtensions",
-    "Unity.Localization",
-    "Sirenix.Serialization"
+    "Unity.Localization"
   ],
   "includePlatforms": [
     "Editor"
@@ -15,7 +14,7 @@
   "excludePlatforms": [],
   "allowUnsafeCode": false,
   "overrideReferences": false,
-  "precompiledReferences": ["Newtonsoft.Json.dll", "Sirenix.Serialization.dll"],
+  "precompiledReferences": ["Newtonsoft.Json.dll"],
   "autoReferenced": false,
   "defineConstraints": [],
   "versionDefines": [],

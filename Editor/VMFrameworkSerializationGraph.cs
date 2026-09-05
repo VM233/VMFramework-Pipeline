@@ -20,7 +20,8 @@ namespace VMFramework.Pipeline.Editor
         private readonly Dictionary<object, int> encoded = new(new IdentityComparer());
         private readonly Dictionary<int, object> decoded = new();
         // Type metadata is immutable during this graph's single Editor invocation.
-        private readonly Dictionary<Type, (FieldInfo[] Fields, Dictionary<string, FieldInfo> Names)> contracts = new();
+        private readonly Dictionary<Type, (FieldInfo[] Fields, Dictionary<string, FieldInfo> Names,
+            HashSet<string> TransientFields)> contracts = new();
         private int values;
         private int metadataFields;
 
@@ -38,27 +39,30 @@ namespace VMFramework.Pipeline.Editor
             RestoreFields(asset, (JObject)graph["fields"], 0);
         }
 
-        private (FieldInfo[] Fields, Dictionary<string, FieldInfo> Names) Contract(Type type)
+        private (FieldInfo[] Fields, Dictionary<string, FieldInfo> Names, HashSet<string> TransientFields) Contract(Type type)
         {
             if (contracts.TryGetValue(type, out var cached)) return cached;
             var result = new List<FieldInfo>();
+            var transientFields = new HashSet<string>(StringComparer.Ordinal);
             for (Type current = type; current != null && current != typeof(object) &&
                  current != typeof(ScriptableObject) && current != typeof(MonoBehaviour) &&
                  !current.Assembly.GetName().Name.StartsWith("Sirenix.", StringComparison.Ordinal);
                  current = current.BaseType)
             {
-                result.AddRange(current.GetFields(BindingFlags.Instance | BindingFlags.Public |
-                    BindingFlags.NonPublic | BindingFlags.DeclaredOnly).Where(field =>
-                    !field.IsStatic &&
-                    !field.IsDefined(typeof(NonSerializedAttribute), false) &&
+                FieldInfo[] declared = current.GetFields(BindingFlags.Instance | BindingFlags.Public |
+                    BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
+                foreach (FieldInfo field in declared.Where(field => !field.IsStatic && field.IsNotSerialized))
+                    transientFields.Add(field.Name);
+                result.AddRange(declared.Where(field => !field.IsStatic && !field.IsNotSerialized &&
                     (field.IsPublic || field.IsDefined(typeof(SerializeField), false) ||
                      field.IsDefined(typeof(SerializeReference), false))));
             }
-            if (result.Count > MaximumFields || result.GroupBy(field => field.Name).Any(group => group.Count() > 1))
+            if (result.Count + transientFields.Count > MaximumFields ||
+                result.GroupBy(field => field.Name).Any(group => group.Count() > 1))
             {
                 throw new InvalidOperationException($"Invalid or oversized serialized field contract: {type}.");
             }
-            metadataFields += result.Count;
+            metadataFields += result.Count + transientFields.Count;
             if (metadataFields > MaximumValues)
             {
                 throw new InvalidOperationException("The graph has too many serialized field definitions.");
@@ -79,7 +83,7 @@ namespace VMFramework.Pipeline.Editor
                     names.Add(former.oldName, field);
                 }
             }
-            var contract = (fields, names);
+            var contract = (fields, names, transientFields);
             contracts.Add(type, contract);
             return contract;
         }
@@ -279,15 +283,17 @@ namespace VMFramework.Pipeline.Editor
 
         private void RestoreFields(object target, JObject data, int depth)
         {
-            Dictionary<string, FieldInfo> fields = Contract(target.GetType()).Names;
+            var contract = Contract(target.GetType());
             foreach (JProperty member in data.Properties())
             {
-                if (!fields.TryGetValue(member.Name, out FieldInfo field))
+                if (contract.TransientFields.Contains(member.Name)) continue;
+                if (!contract.Names.TryGetValue(member.Name, out FieldInfo field))
                 {
                     throw new MissingFieldException(target.GetType().FullName, member.Name);
                 }
                 field.SetValue(target, Decode(member.Value, field.FieldType, depth + 1));
             }
+            if (target is ISerializationCallbackReceiver receiver) receiver.OnAfterDeserialize();
         }
 
         private void Count(int depth)

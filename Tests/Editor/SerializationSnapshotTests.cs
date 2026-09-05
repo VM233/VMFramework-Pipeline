@@ -4,6 +4,7 @@ using System.IO;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Localization;
 using VMUnityAutomation.Editor;
 using Object = UnityEngine.Object;
 using Host = VMFramework.Pipeline.Editor.Tests.SerializationSnapshotTestAsset;
@@ -49,6 +50,9 @@ namespace VMFramework.Pipeline.Editor.Tests
                 new GradientColorKey(Color.blue, 1) }, new[] { new GradientAlphaKey(0.25f, 0),
                 new GradientAlphaKey(0.75f, 1) });
             asset.curve = AnimationCurve.Linear(0, 2, 1, 9);
+            asset.localizedByName = new LocalizedString("NamedTable", "NamedEntry");
+            Guid tableGuid = Guid.Parse("13b825a3-7f70-4baa-a64a-1cd07957d84b");
+            asset.localizedByGuid = new LocalizedString(tableGuid, "GuidEntry");
             string path = assetDirectory + "/Host.asset";
             AssetDatabase.CreateAsset(asset, path);
             AssetDatabase.SaveAssets();
@@ -69,6 +73,27 @@ namespace VMFramework.Pipeline.Editor.Tests
             Assert.That(reloaded.rect, Is.EqualTo(new Rect(-2, 3, 4, 5)));
             Assert.That(reloaded.gradient.Evaluate(0).a, Is.EqualTo(0.25f).Within(0.001f));
             Assert.That(reloaded.curve.Evaluate(1), Is.EqualTo(9f));
+            Assert.That(reloaded.localizedByName.TableReference.TableCollectionName, Is.EqualTo("NamedTable"));
+            Assert.That(reloaded.localizedByGuid.TableReference.TableCollectionNameGuid, Is.EqualTo(tableGuid));
+            Assert.That(reloaded.localizedByGuid.TableEntryReference.Key, Is.EqualTo("GuidEntry"));
+        }
+
+        [Test]
+        public void Apply_LeavesExplicitlyTransientFieldsAtTheirRuntimeValue()
+        {
+            Host asset = ScriptableObject.CreateInstance<Host>();
+            string path = assetDirectory + "/Transient.asset";
+            AssetDatabase.CreateAsset(asset, path);
+            var request = new VMFrameworkSerializationSnapshotRequest
+            {
+                AssetPaths = new List<string> { path }, SnapshotDirectory = snapshotDirectory
+            };
+            var result = VMFrameworkSerializationSnapshotTool.Capture(request);
+            var snapshot = Newtonsoft.Json.Linq.JObject.Parse(File.ReadAllText(result.SnapshotFiles[0]));
+            snapshot["graph"]["fields"]["runtimeValue"] = 99;
+            File.WriteAllText(result.SnapshotFiles[0], snapshot.ToString());
+            VMFrameworkSerializationSnapshotTool.Apply(request);
+            Assert.That(AssetDatabase.LoadAssetAtPath<Host>(path).runtimeValue, Is.EqualTo(5));
         }
 
         [Test]

@@ -46,7 +46,7 @@ namespace VMFramework.Pipeline.Editor
         }
 
         [VmProjectTool(UPDATE_GAME_PREFAB_TOOL_NAME,
-            Description = "Atomically update an existing GamePrefab inside its Wrapper with nested paths, collection edits, Unity asset references, Odin-serialized objects, and a semantic diff.",
+            Description = "Atomically update an existing GamePrefab inside its Wrapper with nested paths, collection edits, Unity asset and managed references, and a semantic diff.",
             MutatesAssets = true,
             TransactionScope = "single-game-prefab-wrapper",
             TransactionAtomicity = VmTransactionMechanics.Atomicity.VerifiedSingleAssetRollback,

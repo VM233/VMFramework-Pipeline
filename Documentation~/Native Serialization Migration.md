@@ -8,6 +8,9 @@ Changed source files and missing fields fail at the responsible asset. Each asse
 atomic; a later asset failure does not undo previously verified assets.
 The staged reader explicitly maps the former GamePrefab tag, input-action, and provider fields to their
 native fields and converts Type, Guid, and set values to the corresponding native schema.
+Restoration invokes native deserialization callbacks after populating each value, so serialized
+fields and their derived runtime state agree before Unity saves them. Fields declared NonSerialized
+in the current schema are runtime state and are excluded from migration.
 
 ## Static Cost Ledger
 
@@ -18,7 +21,9 @@ Each graph allows at most 65536 values and field definitions, depth 64, and 128 
 reference identity terminates graph cycles. Asset graphs are processed individually, so the
 peak retained asset data is one source byte snapshot and two graph trees, budgeted at 128 MiB.
 Each apply invokes one save, one unload, one import, and one load; the exceptional rollback adds
-one byte write and one import. Metadata is read once per type and indexed by field name within
+one byte write and one import. Deserialization callbacks run once per restored callback value;
+the frozen Localization callbacks rebuild state from their own captured fields and variable lists,
+so their traversal is bounded by the same 65536 values per graph. Metadata is read once per type and indexed by field name within
 one graph invocation; the cache ends with that invocation. There is no Cartesian asset scan.
 The bounded traversal budget is 2097152 values and 32 save/import round trips per call on the
 Editor thread. Calls are kept below the official CLI command timeout by using smaller explicit

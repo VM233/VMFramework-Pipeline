@@ -2,6 +2,19 @@
 
 All notable changes to this package are documented here.
 
+## [3.0.0] - 2026-09-05
+
+### Changed
+
+- Require VMFramework 7 and VMCore 1.0.2; remove the test assembly's Odin serializer reference.
+- Restore native serialization callbacks after filling captured fields, preserving Localization
+  table references by name and GUID. Current fields explicitly marked NonSerialized retire old
+  runtime cache values during migration.
+
+### Tests
+
+- Cover localized references and transient runtime values in verified asset round trips.
+
 ## [2.4.1] - 2026-09-05
 
 ### Fixed
