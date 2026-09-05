@@ -67,9 +67,10 @@ stay bounded without paying process startup and discovery cost each time.
 
 ## Capability families
 
-The package publishes 29 canonical `vmframework/...` contracts covering:
+The catalog publishes canonical `vmframework/...` contracts covering:
 
 - effective settings and GeneralSettings discovery;
+- staged serialization snapshots and verified native asset migration;
 - GamePrefab type discovery, search, config query, inspection, creation,
   transactional update, and complete runtime-registration, Prefab-reference,
   and Prefab-name/id validation;
@@ -86,6 +87,9 @@ The catalog is the sole command inventory authority. It publishes operation
 kind, side effects, lifecycle requirements, error codes, data-product links,
 and complete strict JSON schemas. This README intentionally does not duplicate
 the full generated command table.
+
+The staged snapshot workflow and its bounded cost model are documented in
+[Native Serialization Migration](Documentation~/Native%20Serialization%20Migration.md).
 
 ## Domain ownership
 

@@ -2,6 +2,15 @@
 
 All notable changes to this package are documented here.
 
+## [2.3.0] - 2026-09-05
+
+### Added
+
+- Staged serialization migration commands capture complete authoring graphs and apply them
+  with source-hash checks, native save/import/readback verification, and per-asset rollback.
+- Focused tests cover shared cyclic references, native Unity values, Unity asset references,
+  and rejection of concurrent source changes.
+
 ## [2.2.0] - 2026-08-31
 
 ### Added
