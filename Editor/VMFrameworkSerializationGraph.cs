@@ -49,7 +49,7 @@ namespace VMFramework.Pipeline.Editor
             {
                 result.AddRange(current.GetFields(BindingFlags.Instance | BindingFlags.Public |
                     BindingFlags.NonPublic | BindingFlags.DeclaredOnly).Where(field =>
-                    !field.IsStatic && !field.IsInitOnly &&
+                    !field.IsStatic &&
                     !field.IsDefined(typeof(NonSerializedAttribute), false) &&
                     (field.IsPublic || field.IsDefined(typeof(SerializeField), false) ||
                      field.IsDefined(typeof(SerializeReference), false))));

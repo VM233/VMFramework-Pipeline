@@ -2,6 +2,13 @@
 
 All notable changes to this package are documented here.
 
+## [2.3.2] - 2026-09-05
+
+### Fixed
+
+- Capture public readonly authoring fields in legacy object graphs; native readback must
+  account for their values instead of silently omitting them from migration evidence.
+
 ## [2.3.1] - 2026-09-05
 
 ### Fixed

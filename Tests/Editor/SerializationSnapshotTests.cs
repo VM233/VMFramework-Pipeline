@@ -72,6 +72,21 @@ namespace VMFramework.Pipeline.Editor.Tests
         }
 
         [Test]
+        public void Capture_PreservesReadonlyAuthoringFields()
+        {
+            var asset = ScriptableObject.CreateInstance<SerializationReadonlyTestAsset>();
+            string path = assetDirectory + "/Readonly.asset";
+            AssetDatabase.CreateAsset(asset, path);
+            var request = new VMFrameworkSerializationSnapshotRequest
+            {
+                AssetPaths = new List<string> { path }, SnapshotDirectory = snapshotDirectory
+            };
+            var result = VMFrameworkSerializationSnapshotTool.Capture(request);
+            var snapshot = Newtonsoft.Json.Linq.JObject.Parse(File.ReadAllText(result.SnapshotFiles[0]));
+            Assert.That((int)snapshot["graph"]["fields"]["authoringValue"], Is.EqualTo(37));
+        }
+
+        [Test]
         public void Apply_RejectsFilesChangedAfterCapture()
         {
             Host asset = ScriptableObject.CreateInstance<Host>();
