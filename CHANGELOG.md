@@ -2,6 +2,13 @@
 
 All notable changes to this package are documented here.
 
+## [3.0.1] - 2026-09-05
+
+### Fixed
+
+- Materialize captured inline null values and collections using Unity's native representation
+  before verified migration saves, while preserving null managed and Unity object references.
+
 ## [3.0.0] - 2026-09-05
 
 ### Changed

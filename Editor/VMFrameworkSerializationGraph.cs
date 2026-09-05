@@ -181,11 +181,20 @@ namespace VMFramework.Pipeline.Editor
             return fields;
         }
 
-        private object Decode(JToken token, Type expectedType, int depth)
+        private object Decode(JToken token, Type expectedType, int depth, bool managedReference = false)
         {
             Count(depth);
             if (token.Type == JTokenType.Null)
             {
+                // Unity persists inline null classes and collections as empty values. Managed
+                // references and Unity object references retain their distinct null identity.
+                if (expectedType == typeof(string)) return string.Empty;
+                if (expectedType.IsArray) return Array.CreateInstance(expectedType.GetElementType(), 0);
+                if (expectedType.IsGenericType && expectedType.GetGenericTypeDefinition() == typeof(List<>))
+                    return Activator.CreateInstance(expectedType);
+                if (!managedReference && !typeof(Object).IsAssignableFrom(expectedType) &&
+                    expectedType.IsClass && expectedType.IsDefined(typeof(SerializableAttribute), false))
+                    return JsonUtility.FromJson("{}", expectedType);
                 return null;
             }
             if (!(token is JObject node))
@@ -263,7 +272,7 @@ namespace VMFramework.Pipeline.Editor
                 MethodInfo add = targetType.IsArray ? null : targetType.GetMethod("Add", new[] { elementType });
                 for (int index = 0; index < items.Count; index++)
                 {
-                    object value = Decode(items[index], elementType, depth + 1);
+                    object value = Decode(items[index], elementType, depth + 1, managedReference);
                     if (instance is Array array) array.SetValue(value, index);
                     else add.Invoke(instance, new[] { value });
                 }
@@ -291,7 +300,8 @@ namespace VMFramework.Pipeline.Editor
                 {
                     throw new MissingFieldException(target.GetType().FullName, member.Name);
                 }
-                field.SetValue(target, Decode(member.Value, field.FieldType, depth + 1));
+                field.SetValue(target, Decode(member.Value, field.FieldType, depth + 1,
+                    field.IsDefined(typeof(SerializeReference), false)));
             }
             if (target is ISerializationCallbackReceiver receiver) receiver.OnAfterDeserialize();
         }

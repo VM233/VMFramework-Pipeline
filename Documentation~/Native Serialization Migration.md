@@ -11,6 +11,8 @@ native fields and converts Type, Guid, and set values to the corresponding nativ
 Restoration invokes native deserialization callbacks after populating each value, so serialized
 fields and their derived runtime state agree before Unity saves them. Fields declared NonSerialized
 in the current schema are runtime state and are excluded from migration.
+Inline null classes and collections become empty native values, as required by Unity's
+serialization contract. Null managed references and Unity object references remain null.
 
 ## Static Cost Ledger
 
@@ -28,6 +30,8 @@ one graph invocation; the cache ends with that invocation. There is no Cartesian
 The bounded traversal budget is 2097152 values and 32 save/import round trips per call on the
 Editor thread. Calls are kept below the official CLI command timeout by using smaller explicit
 batches when an asset's measured import cost requires it. Pass for the frozen inventory.
+The frozen null-value cases are LocalizedString fields and one empty configuration list; native
+materialization adds at most one LocalizedString and its empty variable list per null field.
 
 The snapshot commands are a staged migration surface. Retire their legacy schema conversions
 after every controlled consumer has adopted and verified native serialization.

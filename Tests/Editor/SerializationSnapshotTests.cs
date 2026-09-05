@@ -79,6 +79,32 @@ namespace VMFramework.Pipeline.Editor.Tests
         }
 
         [Test]
+        public void Apply_MaterializesInlineNullsAndPreservesManagedNulls()
+        {
+            Host asset = ScriptableObject.CreateInstance<Host>();
+            string path = assetDirectory + "/Nulls.asset";
+            AssetDatabase.CreateAsset(asset, path);
+            asset.localizedByName = null;
+            asset.labels = null;
+            asset.first = null;
+            asset.managedNodes = new List<Node> { null };
+            var request = new VMFrameworkSerializationSnapshotRequest
+            {
+                AssetPaths = new List<string> { path }, SnapshotDirectory = snapshotDirectory
+            };
+            VMFrameworkSerializationSnapshotTool.Capture(request);
+            VMFrameworkSerializationSnapshotTool.Apply(request);
+            Host reloaded = AssetDatabase.LoadAssetAtPath<Host>(path);
+            Assert.That(reloaded.localizedByName, Is.Not.Null);
+            Assert.That(reloaded.localizedByName.IsEmpty, Is.True);
+            Assert.That(reloaded.labels, Is.Empty);
+            Assert.That(reloaded.first, Is.Null);
+            Assert.That(reloaded.reference, Is.Null);
+            Assert.That(reloaded.managedNodes, Has.Count.EqualTo(1));
+            Assert.That(reloaded.managedNodes[0], Is.Null);
+        }
+
+        [Test]
         public void Apply_LeavesExplicitlyTransientFieldsAtTheirRuntimeValue()
         {
             Host asset = ScriptableObject.CreateInstance<Host>();

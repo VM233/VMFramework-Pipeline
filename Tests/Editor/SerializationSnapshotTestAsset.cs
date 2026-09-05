@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Localization;
 
@@ -23,6 +24,8 @@ namespace VMFramework.Pipeline.Editor.Tests
         public AnimationCurve curve = new();
         public LocalizedString localizedByName = new();
         public LocalizedString localizedByGuid = new();
+        public List<string> labels = new();
+        [SerializeReference] public List<Node> managedNodes = new();
         [NonSerialized] public int runtimeValue = 5;
     }
 }

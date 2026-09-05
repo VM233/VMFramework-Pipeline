@@ -1,6 +1,6 @@
 {
   "name": "com.vm233.vmframework-pipeline",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "displayName": "VMFramework Pipeline",
   "description": "VMFramework-aware project tools for the official Unity CLI Pipeline automation catalog.",
   "unity": "6000.4",
