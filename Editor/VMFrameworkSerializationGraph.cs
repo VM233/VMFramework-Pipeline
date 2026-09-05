@@ -68,6 +68,10 @@ namespace VMFramework.Pipeline.Editor
             foreach (FieldInfo field in fields)
             {
                 names.Add(field.Name, field);
+                if (field.DeclaringType.FullName == "VMFramework.GameLogicArchitecture.GamePrefab" &&
+                    field.Name == "nativeGameTags") names.Add("gameTags", field);
+                if (field.DeclaringType.FullName == "VMFramework.GameEvents.InputSystemGameEventConfig" &&
+                    field.Name == "nativeInputActionID") names.Add("inputActionID", field);
                 foreach (FormerlySerializedAsAttribute former in field.GetCustomAttributes<FormerlySerializedAsAttribute>())
                 {
                     names.Add(former.oldName, field);

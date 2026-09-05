@@ -2,6 +2,15 @@
 
 All notable changes to this package are documented here.
 
+## [2.3.1] - 2026-09-05
+
+### Fixed
+
+- Give the snapshot round-trip fixture a standalone ScriptableObject script so Unity can
+  resolve its MonoScript when reloading the saved asset.
+- Restore the pre-native GamePrefab tag and input-action fields into their current native fields
+  during the staged migration.
+
 ## [2.3.0] - 2026-09-05
 
 ### Added

@@ -6,6 +6,8 @@ using UnityEditor;
 using UnityEngine;
 using VMUnityAutomation.Editor;
 using Object = UnityEngine.Object;
+using Host = VMFramework.Pipeline.Editor.Tests.SerializationSnapshotTestAsset;
+using Node = VMFramework.Pipeline.Editor.Tests.SerializationSnapshotTestAsset.Node;
 
 namespace VMFramework.Pipeline.Editor.Tests
 {
@@ -13,25 +15,6 @@ namespace VMFramework.Pipeline.Editor.Tests
     {
         private string assetDirectory;
         private string snapshotDirectory;
-
-        [Serializable]
-        public sealed class Node
-        {
-            public string text;
-            [SerializeReference] public Node next;
-        }
-
-        public sealed class Host : ScriptableObject
-        {
-            [SerializeReference] public Node first;
-            [SerializeReference] public Node second;
-            public Object reference;
-            public Vector3 position;
-            public Color color;
-            public Rect rect;
-            public Gradient gradient = new();
-            public AnimationCurve curve = new();
-        }
 
         [SetUp]
         public void SetUp()
