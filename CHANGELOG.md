@@ -2,6 +2,14 @@
 
 All notable changes to this package are documented here.
 
+## [3.0.2] - 2026-09-09
+
+### Fixed
+
+- Report rendered runtime panels as visible independently of their input-enabled state.
+  Non-interactive Tooltips retain `uiEnabled=false` while `actuallyVisible` follows their
+  open state, active hierarchy, panel attachment and resolved rendering styles.
+
 ## [3.0.1] - 2026-09-05
 
 ### Fixed

@@ -88,6 +88,10 @@ kind, side effects, lifecycle requirements, error codes, data-product links,
 and complete strict JSON schemas. This README intentionally does not duplicate
 the full generated command table.
 
+Runtime panel visibility reports input permission separately as `uiEnabled`.
+`actuallyVisible` follows the open state and rendered hierarchy, so a visible
+Tooltip can have input disabled without being reported as hidden.
+
 The staged snapshot workflow and its bounded cost model are documented in
 [Native Serialization Migration](Documentation~/Native%20Serialization%20Migration.md).
 

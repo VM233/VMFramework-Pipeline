@@ -390,7 +390,7 @@ namespace VMFramework.Pipeline.Editor
                     root?.resolvedStyle.visibility.ToString() ?? "";
                 visibility["opacity"] = root?.resolvedStyle.opacity ?? 0;
             }
-            visibility["actuallyVisible"] = panel.IsOpened && panel.UIEnabled &&
+            visibility["actuallyVisible"] = panel.IsOpened &&
                                              activeInHierarchy && toolkitVisible;
 
             return new Dictionary<string, object>
