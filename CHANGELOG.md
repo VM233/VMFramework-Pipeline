@@ -2,6 +2,13 @@
 
 All notable changes to this package are documented here.
 
+## [3.0.3] - 2026-09-10
+
+### Changed
+
+- Require Unity Automation 0.4.0 so framework consumers share the published
+  typed PNG preparation command and the existing asset import lifecycle.
+
 ## [3.0.2] - 2026-09-09
 
 ### Fixed
