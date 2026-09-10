@@ -2,6 +2,12 @@
 
 All notable changes to this package are documented here.
 
+## [3.0.4] - 2026-09-10
+
+### Fixed
+
+- Require Unity Automation 0.4.1 with the complete image resize result contract.
+
 ## [3.0.3] - 2026-09-10
 
 ### Changed

@@ -1,6 +1,6 @@
 {
   "name": "com.vm233.vmframework-pipeline",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "displayName": "VMFramework Pipeline",
   "description": "VMFramework-aware project tools for the official Unity CLI Pipeline automation catalog.",
   "unity": "6000.4",
@@ -15,7 +15,7 @@
   "type": "tool",
   "dependencies": {
     "com.unity.nuget.newtonsoft-json": "3.2.2",
-    "com.vm233.unity-automation": "0.4.0",
+    "com.vm233.unity-automation": "0.4.1",
     "com.unity.localization": "1.5.12",
     "com.vm233.vm-odin-extensions": "1.0.0",
     "com.vm233.vmcore": "1.0.2",
