@@ -2,6 +2,13 @@
 
 All notable changes to this package are documented here.
 
+## [3.0.9] - 2026-09-12
+
+### Changed
+
+- Require VMFramework 8.0.2 so container preflight also admits expandable slots
+  before the first item is inserted.
+
 ## [3.0.8] - 2026-09-12
 
 ### Changed
