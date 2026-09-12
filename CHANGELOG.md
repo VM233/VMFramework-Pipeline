@@ -2,6 +2,13 @@
 
 All notable changes to this package are documented here.
 
+## [3.0.7] - 2026-09-12
+
+### Changed
+
+- Require Unity Automation 0.6.2 so shared build and Editor command contracts
+  publish their actual effects and build polling binds its target project.
+
 ## [3.0.6] - 2026-09-10
 
 ### Changed

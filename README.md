@@ -27,7 +27,7 @@ CLI commands. Their schemas remain fully available only when requested.
 - Unity 6000.4 or newer.
 - The official Unity CLI and `com.unity.pipeline` versions supported by
   `VMUnityPipeline`.
-- `com.vm233.unity-automation` 0.6.1, including in-place PNG resize and exact inherited Prefab property reversion.
+- `com.vm233.unity-automation` 0.6.2, including owned command effects, in-place PNG resize and exact inherited Prefab property reversion.
 - The VMFramework, VMCore, VM Odin Extensions, and Unity Localization
   dependencies declared by `package.json`.
 
