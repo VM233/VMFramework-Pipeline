@@ -2,6 +2,13 @@
 
 All notable changes to this package are documented here.
 
+## [3.0.10] - 2026-09-13
+
+### Changed
+
+- Require Automation 0.6.8 so performance captures can explicitly retire
+  retained Profiler frames through the published command contract.
+
 ## [3.0.9] - 2026-09-12
 
 ### Changed
