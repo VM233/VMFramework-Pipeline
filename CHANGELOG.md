@@ -2,6 +2,13 @@
 
 All notable changes to this package are documented here.
 
+## [3.0.8] - 2026-09-12
+
+### Changed
+
+- Require Automation 0.6.3 so cooperative project tools can retain their
+  cancellation identity between durable job steps.
+
 ## [3.0.7] - 2026-09-12
 
 ### Changed
