@@ -2,6 +2,13 @@
 
 All notable changes to this package are documented here.
 
+## [3.0.12] - 2026-09-13
+
+### Changed
+
+- Require Automation 0.6.10 for retained Editor window capture and its exact
+  capture-mode, result and side-effect contracts.
+
 ## [3.0.11] - 2026-09-13
 
 ### Changed
