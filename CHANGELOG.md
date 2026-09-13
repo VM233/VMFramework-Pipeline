@@ -2,6 +2,13 @@
 
 All notable changes to this package are documented here.
 
+## [3.0.13] - 2026-09-13
+
+### Changed
+
+- Require Automation 0.6.13, including complete Editor capture geometry,
+  foreground/repaint ordering and inspected public capture acceptance.
+
 ## [3.0.12] - 2026-09-13
 
 ### Changed
