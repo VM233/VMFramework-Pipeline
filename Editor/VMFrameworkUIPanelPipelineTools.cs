@@ -149,7 +149,7 @@ namespace VMFramework.Pipeline.Editor
         }
 
         [VmProjectTool(VALIDATE_VISUAL_ELEMENT_PATHS_TOOL_NAME,
-            Description = "Validate VisualElementPath fields on one or every VMFramework UI panel prefab against its UIDocument VisualTreeAsset.",
+            Description = "Validate VisualElementPath fields on one or every VMFramework UI panel prefab against their authored query scope. Panel paths use the UIDocument tree. Local paths use the nearest non-GameItem IVisualElementGenerator, respecting MustFromParent and checking each generated tree independently.",
             InputSchemaJson = VALIDATE_VISUAL_ELEMENT_PATHS_INPUT_SCHEMA_JSON,
             OutputSchemaJson = VALIDATE_VISUAL_ELEMENT_PATHS_OUTPUT_SCHEMA_JSON,
             ReadOnly = true)]
@@ -518,6 +518,7 @@ namespace VMFramework.Pipeline.Editor
 
             var root = validation.visualTree.CloneTree();
             var records = new List<VisualElementPathRecord>();
+            var generatedRoots = new Dictionary<IVisualElementGenerator, VisualElement>();
             foreach (var component in source.prefab.GetComponentsInChildren<Component>(true))
             {
                 if (component == null)
@@ -525,15 +526,22 @@ namespace VMFramework.Pipeline.Editor
                     continue;
                 }
 
+                int firstRecord = records.Count;
                 ScanVisualElementPaths(component,
                     GetGameObjectPath(component.transform) + "/" + component.GetType().Name,
                     records, new HashSet<object>(ReferenceEqualityComparer.Instance), 0, null);
+                for (int index = firstRecord; index < records.Count; index++)
+                {
+                    var record = records[index];
+                    record.queryRoot = ResolveVisualElementPathRoot(root, component, record.settings,
+                        generatedRoots, out record.rootError);
+                }
             }
 
             validation.checkedCount = records.Count;
             foreach (var record in records)
             {
-                var result = ValidateVisualElementPath(root, record);
+                var result = ValidateVisualElementPath(record.queryRoot, record);
                 bool isValid = (bool)result["valid"];
                 if (isValid == false)
                 {
@@ -932,6 +940,13 @@ namespace VMFramework.Pipeline.Editor
                 return result;
             }
 
+            if (record.rootError != null)
+            {
+                result["valid"] = false;
+                result["error"] = record.rootError;
+                return result;
+            }
+
             var element = record.path.Query(root);
             if (element == null)
             {
@@ -954,6 +969,32 @@ namespace VMFramework.Pipeline.Editor
             result["actualName"] = element.name;
             result["classList"] = element.GetClasses().ToArray();
             return result;
+        }
+
+        private static VisualElement ResolveVisualElementPathRoot(VisualElement panelRoot,
+            Component component, VisualElementPathSettingsAttribute settings,
+            IDictionary<IVisualElementGenerator, VisualElement> generatedRoots, out string error)
+        {
+            error = null;
+            if (settings?.IsFromLocalProvider != true) return panelRoot;
+
+            foreach (var generator in component.GetComponentsInParent<IVisualElementGenerator>(true))
+            {
+                if (generator is IGameItem) continue;
+                if (settings.MustFromParent && generator is Component owner && owner.transform == component.transform)
+                    continue;
+
+                if (!generatedRoots.TryGetValue(generator, out var root))
+                {
+                    root = generator.GenerateVisualElement();
+                    generatedRoots.Add(generator, root);
+                }
+                if (root == null) error = "The local VisualElement generator produced no query root.";
+                return root;
+            }
+
+            error = "The local VisualElementPath has no IVisualElementGenerator in its authored parent scope.";
+            return null;
         }
 
         private static void ScanVisualElementPaths(object target, string owner,
@@ -1004,6 +1045,7 @@ namespace VMFramework.Pipeline.Editor
                         member = member,
                         path = path,
                         required = IsVisualElementPathRequired(field),
+                        settings = settings,
                         allowedTypes = GetAllowedTypes(settings)
                     });
                     continue;
@@ -1031,6 +1073,7 @@ namespace VMFramework.Pipeline.Editor
                                 member = $"{member}[{index}]",
                                 path = itemPath,
                                 required = IsVisualElementPathRequired(field),
+                                settings = settings,
                                 allowedTypes = GetAllowedTypes(settings)
                             });
                         }
@@ -1155,6 +1198,9 @@ namespace VMFramework.Pipeline.Editor
             public string member;
             public VisualElementPath path;
             public bool required;
+            public VisualElementPathSettingsAttribute settings;
+            public VisualElement queryRoot;
+            public string rootError;
             public List<Type> allowedTypes;
         }
 

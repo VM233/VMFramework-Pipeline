@@ -92,6 +92,12 @@ Runtime panel visibility reports input permission separately as `uiEnabled`.
 `actuallyVisible` follows the open state and rendered hierarchy, so a visible
 Tooltip can have input disabled without being reported as hidden.
 
+VisualElementPath validation follows each field's authored query scope.
+Panel paths use the UIDocument tree, while local paths use the nearest
+non-GameItem `IVisualElementGenerator`, respecting `MustFromParent`. Each
+provider generates one audit tree per panel invocation. Runtime-generated
+entries do not require placeholder instances in production UXML.
+
 The staged snapshot workflow and its bounded cost model are documented in
 [Native Serialization Migration](Documentation~/Native%20Serialization%20Migration.md).
 

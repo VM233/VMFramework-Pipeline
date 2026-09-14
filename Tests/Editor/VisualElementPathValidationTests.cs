@@ -66,6 +66,54 @@ namespace VMFramework.Pipeline.Editor.Tests
         }
 
         [Test]
+        public void LocalPathRoot_UsesNearestEntryGeneratorAndHonorsParentOnly()
+        {
+            var parent = new GameObject("Parent Entry");
+            var child = new GameObject("Nested Entry");
+            var asset = ScriptableObject.CreateInstance<VisualTreeAsset>();
+            try
+            {
+                child.transform.SetParent(parent.transform);
+                var outer = parent.AddComponent<PairEntryAdder>();
+                var inner = child.AddComponent<PairEntryAdder>();
+                outer.entryAsset = asset;
+                inner.entryAsset = asset;
+                var panelRoot = new VisualElement { name = "Panel Root" };
+                var cache = new Dictionary<IVisualElementGenerator, VisualElement>();
+                var method = typeof(VMFrameworkUIPanelPipelineTools).GetMethod("ResolveVisualElementPathRoot",
+                    BindingFlags.Static | BindingFlags.NonPublic);
+                var settings = new VisualElementPathSettingsAttribute { IsFromLocalProvider = true };
+
+                var args = new object[] { panelRoot, inner, settings, cache, null };
+                var innerRoot = (VisualElement)method.Invoke(null, args);
+                Assert.That(args[4], Is.Null);
+                Assert.That(innerRoot, Is.SameAs(cache[inner]));
+                Assert.That(innerRoot, Is.Not.SameAs(panelRoot));
+                Assert.That(method.Invoke(null, args), Is.SameAs(innerRoot));
+                Assert.That(cache.Count, Is.EqualTo(1));
+
+                settings.MustFromParent = true;
+                var outerRoot = (VisualElement)method.Invoke(null, args);
+                Assert.That(outerRoot, Is.SameAs(cache[outer]));
+                Assert.That(outerRoot, Is.Not.SameAs(innerRoot));
+                Assert.That(cache.Count, Is.EqualTo(2));
+
+                settings.IsFromLocalProvider = false;
+                Assert.That(method.Invoke(null, args), Is.SameAs(panelRoot));
+
+                settings.IsFromLocalProvider = true;
+                args[1] = outer;
+                Assert.That(method.Invoke(null, args), Is.Null);
+                Assert.That(args[4], Is.Not.Null);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(parent);
+                UnityEngine.Object.DestroyImmediate(asset);
+            }
+        }
+
+        [Test]
         public void ScanVisualElementPaths_DoesNotEnumerateMissingUnityObjectReferences()
         {
             Type toolsType = typeof(VMFrameworkUIPanelPipelineTools);

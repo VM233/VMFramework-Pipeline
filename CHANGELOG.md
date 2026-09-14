@@ -2,6 +2,16 @@
 
 All notable changes to this package are documented here.
 
+## [3.0.14] - 2026-09-14
+
+### Fixed
+
+- Validate local VisualElementPath fields against their nearest authored entry
+  generator, including parent-only paths. Generated entries no longer need
+  runtime preview instances in the panel tree to pass validation.
+- Reuse one generated tree per provider within each panel audit, and report
+  missing local providers without substituting the panel root.
+
 ## [3.0.13] - 2026-09-13
 
 ### Changed
