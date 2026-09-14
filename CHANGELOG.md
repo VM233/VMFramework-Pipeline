@@ -2,6 +2,13 @@
 
 All notable changes to this package are documented here.
 
+## [3.0.15] - 2026-09-14
+
+### Fixed
+
+- Reference VMCore from the Editor test assembly so local VisualElementPath
+  generator regression tests compile against their IController contract.
+
 ## [3.0.14] - 2026-09-14
 
 ### Fixed

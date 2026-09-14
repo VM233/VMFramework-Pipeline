@@ -5,6 +5,7 @@
     "VMUnityAutomation.Editor",
     "VMFramework.Pipeline.Editor",
     "VMFramework",
+    "VMCore",
     "VMOdinExtensions",
     "Unity.Localization"
   ],
