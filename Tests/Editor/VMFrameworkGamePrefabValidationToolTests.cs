@@ -5,6 +5,7 @@ using NUnit.Framework;
 using UnityEngine;
 using VMFramework.Core;
 using VMFramework.GameLogicArchitecture;
+using Assert = NUnit.Framework.Assert;
 
 namespace VMFramework.Pipeline.Editor.Tests
 {

@@ -2,6 +2,13 @@
 
 All notable changes to this package are documented here.
 
+## [3.0.16] - 2026-09-14
+
+### Fixed
+
+- Disambiguate NUnit assertions from VMCore assertions in GamePrefab validation
+  tests now that the test assembly directly references VMCore.
+
 ## [3.0.15] - 2026-09-14
 
 ### Fixed
