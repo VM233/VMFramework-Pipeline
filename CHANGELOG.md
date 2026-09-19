@@ -2,6 +2,13 @@
 
 All notable changes to this package are documented here.
 
+## [3.0.17] - 2026-09-19
+
+### Changed
+
+- Require VMFramework 9.0.0 after configuration lifecycle ownership moved from
+  `BaseConfig` to narrow interfaces and explicit owners.
+
 ## [3.0.16] - 2026-09-14
 
 ### Fixed
