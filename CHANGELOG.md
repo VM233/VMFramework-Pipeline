@@ -2,6 +2,13 @@
 
 All notable changes to this package are documented here.
 
+## [3.0.21] - 2026-10-03
+
+### Fixed
+
+- Put the GeneralSetting binding data product in its own source file to satisfy
+  the shared C# policy without changing the public creation contract.
+
 ## [3.0.20] - 2026-10-03
 
 ### Added
