@@ -15,6 +15,11 @@ namespace VMFramework.Pipeline.Editor.Tests
     [Category("VMFrameworkPipeline.FullRegression")]
     public sealed class GamePrefabValueConversionTests
     {
+        [Serializable]
+        public sealed class CreationGamePrefab : LocalizedGamePrefab
+        {
+        }
+
         private sealed class CollectionFixture
         {
             public HashSet<string> gameTags = new();
@@ -66,8 +71,8 @@ namespace VMFramework.Pipeline.Editor.Tests
                 ["gameTags"] = new[] { "first", "second", "first" },
             };
 
-            var created = (RenameFixtureGamePrefab)VMFrameworkPipelineTools.CreateGamePrefab(
-                "structured_creation", typeof(RenameFixtureGamePrefab), values, new List<string>());
+            var created = (CreationGamePrefab)VMFrameworkPipelineTools.CreateGamePrefab(
+                "structured_creation", typeof(CreationGamePrefab), values, new List<string>());
 
             Assert.That(created.id, Is.EqualTo("structured_creation"));
             Assert.That(created.name.TableReference.TableCollectionName, Is.EqualTo("EncounterEvent"));

@@ -2,6 +2,13 @@
 
 All notable changes to this package are documented here.
 
+## [3.0.19] - 2026-10-03
+
+### Fixed
+
+- Use a LocalizedGamePrefab fixture when testing inherited creation localization;
+  the identity-only fixture does not own a localized name.
+
 ## [3.0.18] - 2026-10-03
 
 ### Fixed
