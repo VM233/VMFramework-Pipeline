@@ -2,6 +2,17 @@
 
 All notable changes to this package are documented here.
 
+## [3.0.18] - 2026-10-03
+
+### Fixed
+
+- Use the same serialized-value conversion for GamePrefab creation and updates,
+  including nested localization, managed-reference descriptors, typed collections,
+  inherited members and exact Unity Object references. Remove the separate
+  primitive-only creation converter.
+- Document the shared value contract in the creation schema and cover creation
+  identity rejection, nested values, nulls and exact asset references in regression tests.
+
 ## [3.0.17] - 2026-09-19
 
 ### Changed

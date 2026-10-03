@@ -37,6 +37,106 @@ namespace VMFramework.Pipeline.Editor.Tests
             public LocalizedString name = new();
         }
 
+        private abstract class ManagedValueFixture
+        {
+            public int count;
+        }
+
+        private sealed class ManagedRangeFixture : ManagedValueFixture
+        {
+            public ManagedRangeFixture() { }
+
+            public RangeFixture range;
+        }
+
+        private sealed class CreationValuesFixture
+        {
+            public List<ManagedValueFixture> values;
+            public RangeFixture[] ranges;
+            public LocalizedString name;
+            public int count;
+        }
+
+        [Test]
+        public void CreateGamePrefab_UsesStructuredConversionForInheritedLocalizedNameAndTags()
+        {
+            var values = new Dictionary<string, object>
+            {
+                ["name"] = LocalizedName("EncounterEvent", "GiantMushroomGroveEncounterEventName"),
+                ["gameTags"] = new[] { "first", "second", "first" },
+            };
+
+            var created = (RenameFixtureGamePrefab)VMFrameworkPipelineTools.CreateGamePrefab(
+                "structured_creation", typeof(RenameFixtureGamePrefab), values, new List<string>());
+
+            Assert.That(created.id, Is.EqualTo("structured_creation"));
+            Assert.That(created.name.TableReference.TableCollectionName, Is.EqualTo("EncounterEvent"));
+            Assert.That(created.name.TableEntryReference.Key, Is.EqualTo("GiantMushroomGroveEncounterEventName"));
+            Assert.That(created.name.WaitForCompletion, Is.True);
+            CollectionAssert.AreEqual(new[] { "first", "second", "first" }, created.gameTags);
+        }
+
+        [Test]
+        public void CreationValues_ConvertManagedTypesArraysValueTypesAndNullsLikeUpdates()
+        {
+            var values = new Dictionary<string, object>
+            {
+                ["values"] = new object[]
+                {
+                    new Dictionary<string, object>
+                    {
+                        ["$type"] = typeof(ManagedRangeFixture).AssemblyQualifiedName,
+                        ["count"] = 3L,
+                        ["range"] = new Dictionary<string, object> { ["min"] = 2L, ["max"] = 5L },
+                    },
+                },
+                ["ranges"] = new object[]
+                {
+                    new Dictionary<string, object> { ["min"] = 7L, ["max"] = 9L },
+                },
+                ["name"] = null,
+                ["count"] = null,
+            };
+            var fixture = new CreationValuesFixture();
+
+            VMFrameworkPipelineTools.ApplySerializedValues(fixture, values);
+
+            var managed = (ManagedRangeFixture)fixture.values.Single();
+            Assert.That(managed.count, Is.EqualTo(3));
+            Assert.That(managed.range.min, Is.EqualTo(2));
+            Assert.That(managed.range.max, Is.EqualTo(5));
+            Assert.That(fixture.ranges.Single().min, Is.EqualTo(7));
+            Assert.That(fixture.ranges.Single().max, Is.EqualTo(9));
+            Assert.That(fixture.name, Is.Null);
+            Assert.That(fixture.count, Is.Zero);
+        }
+
+        [TestCase("id")]
+        [TestCase("_id")]
+        public void CreationValues_RejectIdentityReplacement(string member)
+        {
+            Assert.Throws<InvalidOperationException>(() => VMFrameworkPipelineTools.ApplySerializedValues(
+                new RenameFixtureGamePrefab(), new Dictionary<string, object> { [member] = "replacement" }));
+        }
+
+        [Test]
+        public void CreationValues_ReportUnknownMemberAtTheSameBoundaryAsUpdates()
+        {
+            var error = Assert.Throws<MissingMemberException>(() => VMFrameworkPipelineTools.ApplySerializedValues(
+                new CreationValuesFixture(), new Dictionary<string, object> { ["missing"] = 1L }));
+            Assert.That(error.Message, Does.Contain("missing"));
+        }
+
+        private static Dictionary<string, object> LocalizedName(string table, string key)
+        {
+            return new Dictionary<string, object>
+            {
+                ["m_TableReference"] = new Dictionary<string, object> { ["m_TableCollectionName"] = table },
+                ["m_TableEntryReference"] = new Dictionary<string, object> { ["m_Key"] = key },
+                ["m_WaitForCompletion"] = true,
+            };
+        }
+
         [Test]
         public void StructuredLocalizedString_IsConvertedBeforeEnumerableHandling()
         {

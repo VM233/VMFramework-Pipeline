@@ -10,6 +10,11 @@ namespace VMFramework.Pipeline.Editor.Tests
     [Category("VMFrameworkPipeline.FullRegression")]
     public sealed class UnityObjectReferenceResolverTests
     {
+        private sealed class CreationReferenceFixture
+        {
+            public GameObject prefab;
+        }
+
         private const string TestFolder =
             "Assets/__VMFrameworkUnityObjectReferenceTests";
         private const string PrefabPath = TestFolder + "/Nested.prefab";
@@ -32,6 +37,28 @@ namespace VMFramework.Pipeline.Editor.Tests
             {
                 AssetDatabase.DeleteAsset(TestFolder);
             }
+        }
+
+        [Test]
+        public void CreationValues_ResolveExactUnityObjectDescriptorsThroughTheSharedOwner()
+        {
+            CreateNestedPrefab();
+            var child = AssetDatabase.LoadAllAssetsAtPath(PrefabPath)
+                .OfType<GameObject>().Single(value => value.name == "Child");
+            Assert.That(AssetDatabase.TryGetGUIDAndLocalFileIdentifier(child, out var guid, out long fileId), Is.True);
+            var fixture = new CreationReferenceFixture();
+
+            VMFrameworkPipelineTools.ApplySerializedValues(fixture, new Dictionary<string, object>
+            {
+                ["prefab"] = new Dictionary<string, object>
+                {
+                    ["assetPath"] = PrefabPath,
+                    ["guid"] = guid,
+                    ["fileID"] = fileId,
+                },
+            });
+
+            Assert.That(fixture.prefab, Is.SameAs(child));
         }
 
         [Test]

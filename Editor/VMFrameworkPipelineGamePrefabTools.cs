@@ -504,7 +504,7 @@ namespace VMFramework.Pipeline.Editor
             };
         }
 
-        private static void SetMemberValue(object target, string name, object rawValue, string path)
+        internal static void SetMemberValue(object target, string name, object rawValue, string path)
         {
             var member = FindMember(target.GetType(), name);
             switch (member)
