@@ -2,6 +2,14 @@
 
 All notable changes to this package are documented here.
 
+## [3.0.20] - 2026-10-03
+
+### Added
+
+- Expose `create-missing-general-settings` for new-project configuration through
+  the official CLI. Reuse the framework authoring owner, preserve existing asset
+  identities, and return every saved binding after synchronous import.
+
 ## [3.0.19] - 2026-10-03
 
 ### Fixed

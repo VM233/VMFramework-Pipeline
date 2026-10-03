@@ -16,6 +16,7 @@ namespace VMFramework.Pipeline.Editor.Tests
         private static readonly string[] ExpectedToolNames =
         {
             "vmframework/add-game-prefab",
+            "vmframework/create-missing-general-settings",
             "vmframework/find-game-prefab",
             "vmframework/get-configuration",
             "vmframework/get-property",
@@ -49,6 +50,7 @@ namespace VMFramework.Pipeline.Editor.Tests
         private static readonly HashSet<string> ExpectedCustomErrorToolNames =
             new(StringComparer.Ordinal)
             {
+                "vmframework/create-missing-general-settings",
                 "vmframework/inspect-runtime-game-item",
                 "vmframework/logic-tick-control",
                 "vmframework/procedure-state",

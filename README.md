@@ -27,8 +27,8 @@ or embedded package overrides.
 Set the exact project path and search a bounded catalog page:
 
 ```powershell
-$env:UNITY_PROJECT_PATH = 'D:\UnityProjects\YourProject'
-unity command vm_catalog_list --query vmframework --limit 10 --format json
+$projectPath = (Resolve-Path .).Path
+unity --json command --project-path $projectPath vm_catalog_list -- --query vmframework --limit 5
 ```
 
 Use `vm_catalog_get` to discover one returned command's current contract and
@@ -43,6 +43,7 @@ VMFramework domain. The catalog is the command and schema authority.
 - `Documentation~/`: detailed usage and configuration
 
 See [GamePrefab Authoring](Documentation~/GamePrefab%20Authoring.md),
+[New Project Settings](Documentation~/New%20Project%20Settings.md),
 [Configuration](Documentation~/configuration.md) and
 [Native Serialization Migration](Documentation~/Native%20Serialization%20Migration.md).
 Release changes appear in [CHANGELOG](CHANGELOG.md); licensing is in [LICENSE](LICENSE).

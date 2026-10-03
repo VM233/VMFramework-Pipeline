@@ -1,6 +1,6 @@
 # VMFramework Pipeline configuration and project-tool audit
 
-This document is the configuration review for the 29-tool VMFramework Pipeline
+This document is the configuration review for the VMFramework Pipeline
 catalog. The tool-catalog regression test owns the exact list, requires one
 operation kind per tool, requires strict schemas, and registers every valid
 tool in the bounded Automation catalog consumed by `vm_automation_call`.
@@ -52,6 +52,7 @@ each VMFramework tool keeps its own hard maximum.
 | Tool | Configurable default | Explicit-only fields and decision |
 |---|---|---|
 | `get-configuration` | None | Read-only effective snapshot; accepts no arguments. |
+| `create-missing-general-settings` | Framework GeneralSettings folder | Creates and binds missing settings through the existing authoring owner. Preserves assigned references and verifies saved asset identities. Editor initialization remains a separate lifecycle operation. |
 | `list-game-prefab-types` | Shared result limit | Filter and abstract/interface inclusion change the requested set and remain explicit. |
 | `add-game-prefab` | None | ID, type, overwrite, asset name, and serialized values define an asset mutation. Asset folders remain authoritative in VMFramework GeneralSettings. |
 | `find-game-prefab` | Shared result limit | ID, filter, and type are selectors. Every result must be registered to exactly one type-compatible GamePrefabGeneralSetting; orphaned or multiply owned matches fail instead of becoming partial references. |
