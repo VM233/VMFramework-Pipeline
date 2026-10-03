@@ -2,6 +2,13 @@
 
 All notable changes to this package are documented here.
 
+## [3.0.23] - 2026-10-04
+
+### Fixed
+
+- Classify project-file writes as mutation in the complete catalog regression,
+  covering serialization snapshot capture without mislabeling it as read-only.
+
 ## [3.0.22] - 2026-10-03
 
 ### Fixed

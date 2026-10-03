@@ -100,7 +100,8 @@ namespace VMFramework.Pipeline.Editor.Tests
                 int operationKinds =
                     (HasTag(tool, "readOnly") ? 1 : 0) +
                     (HasSideEffect(tool, "writesAssets") ||
-                     HasSideEffect(tool, "writesScene") ? 1 : 0) +
+                     HasSideEffect(tool, "writesScene") ||
+                     HasSideEffect(tool, "writesProjectFiles") ? 1 : 0) +
                     (HasSideEffect(tool, "changesRuntimeState") ? 1 : 0);
                 Assert.That(operationKinds, Is.EqualTo(1), toolName);
 
