@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.AddressableAssets;
 using UnityEngine;
 using VMFramework.GameLogicArchitecture;
 using VMFramework.GameLogicArchitecture.Editor;
@@ -17,15 +18,15 @@ namespace VMFramework.Pipeline.Editor
         private const int MaximumBindings = 256;
 
         [VmProjectTool("vmframework/create-missing-general-settings",
-            Description = "Create and bind missing GeneralSettings through the framework authoring owner, using its configured asset folder. Preserve existing references and assets, save all changes, and verify every binding after synchronous import. Run a normal Editor initialization or domain reload afterward to initialize the newly configured modules.",
+            Description = "Create and bind missing GeneralSettings through the framework authoring owner, using its configured asset folder. Optionally ensure newly declared global setting files and their Addressables entries first. Preserve existing references and assets, save all changes, and verify every binding after synchronous import. Run a normal Editor initialization or domain reload afterward to initialize the newly configured modules.",
             MutatesAssets = true,
-            Preconditions = new[] { "stable-edit-mode", "global-setting-files-exist" },
+            Preconditions = new[] { "stable-edit-mode", "global-setting-type-configs-exist" },
             CompletionEvidence = "Every global GeneralSetting field has an asset reference after save and synchronous import; pre-existing bindings retain their exact asset identity.",
             ErrorCodes = new[]
             {
                 "general_settings_editor_not_idle", "general_settings_invalid_folder",
                 "general_settings_missing_global_files", "general_settings_capacity_exceeded",
-                "general_settings_readback_failed",
+                "general_settings_readback_failed", "global_settings_registration_failed",
             })]
         public static VMFrameworkCreateMissingGeneralSettingsResult CreateMissingGeneralSettings(
             VMFrameworkCreateMissingGeneralSettingsRequest request)
@@ -41,6 +42,40 @@ namespace VMFramework.Pipeline.Editor
                 !AssetDatabase.IsValidFolder(folder))
             {
                 throw Failure("general_settings_invalid_folder", $"Invalid configured folder: '{folder}'.");
+            }
+
+            var createdGlobalPaths = new List<string>();
+            if (request.EnsureGlobalSettings)
+            {
+                var types = GlobalSettingFileManager.TypeConfigs.Keys.ToList();
+                if (types.Count > MaximumGlobalSettings)
+                {
+                    throw Failure("general_settings_capacity_exceeded", "Global setting configuration exceeds the 64-file budget.");
+                }
+                var configuredFiles = new List<(Type type, string path, string fileName)>();
+                foreach (var type in types)
+                {
+                    if (!GlobalSettingFileEditorManager.TryGetGlobalSettingPath(type, out string path, out string fileName))
+                    {
+                        throw Failure("global_settings_registration_failed", $"Global setting type '{type.FullName}' has no valid authoring path.");
+                    }
+                    configuredFiles.Add((type, path, fileName));
+                    if (AssetDatabase.LoadMainAssetAtPath(path) == null) createdGlobalPaths.Add(path);
+                }
+                GlobalSettingFileEditorManager.CheckGlobalSettingsFile();
+                AssetDatabase.SaveAssets();
+                var addressables = AddressableAssetSettingsDefaultObject.Settings;
+                var createdSet = new HashSet<string>(createdGlobalPaths, StringComparer.Ordinal);
+                foreach (var (_, path, fileName) in configuredFiles)
+                {
+                    if (!createdSet.Contains(path)) continue;
+                    string guid = AssetDatabase.AssetPathToGUID(path);
+                    var entry = addressables.FindAssetEntry(guid);
+                    if (string.IsNullOrEmpty(guid) || entry == null || entry.address != System.IO.Path.GetFileNameWithoutExtension(fileName))
+                    {
+                        throw Failure("global_settings_registration_failed", $"Global setting '{path}' has no matching Addressables entry.");
+                    }
+                }
             }
 
             var files = GlobalSettingFileEditorManager.GetGlobalSettings().Cast<GlobalSettingFile>()
@@ -132,6 +167,7 @@ namespace VMFramework.Pipeline.Editor
                 GlobalSettingCount = files.Count,
                 GeneralSettingCount = settingPaths.Count,
                 CreatedGeneralSettings = createdPaths.OrderBy(path => path, StringComparer.Ordinal).ToList(),
+                CreatedGlobalSettings = createdGlobalPaths.OrderBy(path => path, StringComparer.Ordinal).ToList(),
                 Bindings = bindings,
             };
         }

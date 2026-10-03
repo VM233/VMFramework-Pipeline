@@ -5,6 +5,7 @@
     "VMUnityAutomation.Editor",
     "Unity.Localization",
     "Unity.Localization.Editor",
+    "Unity.Addressables.Editor",
     "VMCore",
     "VMOdinExtensions",
     "VMFramework"

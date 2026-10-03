@@ -2,6 +2,14 @@
 
 All notable changes to this package are documented here.
 
+## [3.0.24] - 2026-10-04
+
+### Added
+
+- Allow settings creation to materialize newly declared global setting files through
+  the framework owner and verify their Addressables entries before binding
+  GeneralSettings. Existing file identities and references remain authoritative.
+
 ## [3.0.23] - 2026-10-04
 
 ### Fixed

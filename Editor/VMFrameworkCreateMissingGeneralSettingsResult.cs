@@ -19,6 +19,10 @@ namespace VMFramework.Pipeline.Editor
         [Description("New GeneralSetting asset paths. Existing assets and assigned references are preserved.")]
         public List<string> CreatedGeneralSettings { get; set; }
 
+        [VmRequired, VmJsonProperty("createdGlobalSettings")]
+        [Description("Global setting files created and verified in Addressables when ensureGlobalSettings is enabled.")]
+        public List<string> CreatedGlobalSettings { get; set; }
+
         [VmRequired, VmJsonProperty("bindings")]
         [Description("Every GeneralSetting field read back from the synchronously imported global setting files.")]
         public List<VMFrameworkGeneralSettingBinding> Bindings { get; set; }
