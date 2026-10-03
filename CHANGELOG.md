@@ -2,6 +2,13 @@
 
 All notable changes to this package are documented here.
 
+## [3.0.22] - 2026-10-03
+
+### Fixed
+
+- Include the existing serialization snapshot capture and apply tools in the
+  complete catalog regression, alongside new-project settings creation.
+
 ## [3.0.21] - 2026-10-03
 
 ### Fixed

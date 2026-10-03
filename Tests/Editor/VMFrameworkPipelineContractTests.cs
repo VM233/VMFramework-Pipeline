@@ -16,6 +16,8 @@ namespace VMFramework.Pipeline.Editor.Tests
         private static readonly string[] ExpectedToolNames =
         {
             "vmframework/add-game-prefab",
+            "vmframework/apply-serialization-snapshots",
+            "vmframework/capture-serialization-snapshots",
             "vmframework/create-missing-general-settings",
             "vmframework/find-game-prefab",
             "vmframework/get-configuration",
