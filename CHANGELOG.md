@@ -2,6 +2,13 @@
 
 All notable changes to this package are documented here.
 
+## [3.0.25] - 2026-10-06
+
+### Changed
+
+- Align the shared Automation minimum with 0.6.136, which attributes rejected
+  native Editor captures using structured foreground-window observations.
+
 ## [3.0.24] - 2026-10-04
 
 ### Added
