@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEditor;
+using UnityEditorInternal;
 using UnityEngine;
 using VMUnityAutomation.Editor;
 using Object = UnityEngine.Object;
@@ -38,7 +39,7 @@ namespace VMFramework.Pipeline.Editor
         }
 
         [VmProjectTool("vmframework/apply-serialization-snapshots",
-            Description = "Apply captured authoring graphs to their current Unity serialization schema, then save, unload, reload, and compare every field and Unity reference. Each asset rolls back its bytes if readback differs.",
+            Description = "Apply captured authoring graphs to their current Unity serialization schema, then save, import and independently deserialize the native disk graph. Preserve loaded asset identities and inbound references; each asset rolls back its bytes if readback differs.",
             MutatesAssets = true, ErrorCodes = new[] { "serialization_source_changed", "serialization_migration_failed" },
             TransactionScope = "one-asset-at-a-time",
             TransactionAtomicity = VmTransactionMechanics.Atomicity.VerifiedSingleAssetRollback,
@@ -66,11 +67,9 @@ namespace VMFramework.Pipeline.Editor
                     JObject expected = new VMFrameworkSerializationGraph().Capture(asset);
                     EditorUtility.SetDirty(asset);
                     AssetDatabase.SaveAssetIfDirty(asset);
-                    Resources.UnloadAsset(asset);
                     AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceSynchronousImport |
                         ImportAssetOptions.ForceUpdate);
-                    Object reloaded = Load(path);
-                    JObject actual = new VMFrameworkSerializationGraph().Capture(reloaded);
+                    JObject actual = ReadPersistedGraph(path, asset.GetType());
                     if (!JToken.DeepEquals(expected, actual))
                     {
                         File.WriteAllText(snapshotPath + ".expected.json", expected.ToString());
@@ -97,6 +96,23 @@ namespace VMFramework.Pipeline.Editor
                 }
             }
             return result;
+        }
+
+        private static JObject ReadPersistedGraph(string path, Type expectedType)
+        {
+            Object[] copies = InternalEditorUtility.LoadSerializedFileAndForget(path);
+            try
+            {
+                if (copies.Length != 1 || copies[0].GetType() != expectedType)
+                {
+                    throw new InvalidOperationException($"Expected one native root of type {expectedType}: {path}.");
+                }
+                return new VMFrameworkSerializationGraph().Capture(copies[0]);
+            }
+            finally
+            {
+                foreach (Object copy in copies) Object.DestroyImmediate(copy);
+            }
         }
 
         private static string Validate(VMFrameworkSerializationSnapshotRequest request)

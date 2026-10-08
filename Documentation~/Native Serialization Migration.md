@@ -2,7 +2,9 @@
 
 Capture explicit asset paths with `vmframework/capture-serialization-snapshots` before changing
 their serialization schema. Then use `vmframework/apply-serialization-snapshots` to restore the
-captured fields into the new schema and verify a real Unity save/unload/import/load round trip.
+captured fields into the new schema and verify Unity save/import plus an independent native disk
+deserialization. Verification copies are destroyed after comparison; persistent assets stay loaded
+so existing Inspector, provider and configuration references retain their object identity.
 Snapshots retain source hashes, object types, shared references, and persistent Unity identities.
 Changed source files and missing fields fail at the responsible asset. Each asset is independently
 atomic; a later asset failure does not undo previously verified assets.
@@ -22,7 +24,10 @@ nodes across MarbleBattlers / Balance / BattleIdle; the largest persisted asset 
 Each graph allows at most 65536 values and field definitions, depth 64, and 128 fields per type. Shared
 reference identity terminates graph cycles. Asset graphs are processed individually, so the
 peak retained asset data is one source byte snapshot and two graph trees, budgeted at 128 MiB.
-Each apply invokes one save, one unload, one import, and one load; the exceptional rollback adds
+Each apply invokes one save, one import and one untracked native deserialize of its single
+ScriptableObject root, followed by destruction of that verification copy. The frozen inventory
+contains one native root per asset; multi-root files are outside this contract. Native imports
+retain the persistent root and its inbound references. The exceptional rollback adds
 one byte write and one import. Deserialization callbacks run once per restored callback value;
 the frozen Localization callbacks rebuild state from their own captured fields and variable lists,
 so their traversal is bounded by the same 65536 values per graph. Metadata is read once per type and indexed by field name within

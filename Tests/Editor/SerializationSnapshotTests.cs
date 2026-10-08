@@ -138,6 +138,66 @@ namespace VMFramework.Pipeline.Editor.Tests
         }
 
         [Test]
+        public void Apply_PreservesLoadedInboundReferenceWhenParentIsSavedLater()
+        {
+            Host target = ScriptableObject.CreateInstance<Host>();
+            Host parent = ScriptableObject.CreateInstance<Host>();
+            string targetPath = assetDirectory + "/Target.asset";
+            string parentPath = assetDirectory + "/Parent.asset";
+            AssetDatabase.CreateAsset(target, targetPath);
+            parent.reference = target;
+            AssetDatabase.CreateAsset(parent, parentPath);
+            AssetDatabase.SaveAssets();
+            var request = new VMFrameworkSerializationSnapshotRequest
+            {
+                AssetPaths = new List<string> { targetPath }, SnapshotDirectory = snapshotDirectory
+            };
+            VMFrameworkSerializationSnapshotTool.Capture(request);
+            VMFrameworkSerializationSnapshotTool.Apply(request);
+            Assert.That(target == null, Is.False, "Verification must not unload the persistent target.");
+            Assert.That(parent.reference, Is.SameAs(target));
+            var parentRequest = new VMFrameworkSerializationSnapshotRequest
+            {
+                AssetPaths = new List<string> { parentPath }, SnapshotDirectory = snapshotDirectory
+            };
+            var captured = VMFrameworkSerializationSnapshotTool.Capture(parentRequest);
+            var graph = Newtonsoft.Json.Linq.JObject.Parse(File.ReadAllText(captured.SnapshotFiles[0]));
+            Assert.That((string)graph["graph"]["fields"]["reference"]["$unity"],
+                Is.EqualTo(GlobalObjectId.GetGlobalObjectIdSlow(target).ToString()));
+            EditorUtility.SetDirty(parent);
+            AssetDatabase.SaveAssetIfDirty(parent);
+            AssetDatabase.ImportAsset(parentPath, ImportAssetOptions.ForceSynchronousImport | ImportAssetOptions.ForceUpdate);
+            Assert.That(parent.reference, Is.SameAs(target));
+            Assert.That(AssetDatabase.LoadAssetAtPath<Host>(parentPath).reference, Is.SameAs(target));
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Apply_PreservesLoadedParentAndTargetInEitherBatchOrder(bool parentFirst)
+        {
+            Host target = ScriptableObject.CreateInstance<Host>();
+            Host parent = ScriptableObject.CreateInstance<Host>();
+            string targetPath = assetDirectory + "/Target.asset";
+            string parentPath = assetDirectory + "/Parent.asset";
+            AssetDatabase.CreateAsset(target, targetPath);
+            parent.reference = target;
+            AssetDatabase.CreateAsset(parent, parentPath);
+            AssetDatabase.SaveAssets();
+            var request = new VMFrameworkSerializationSnapshotRequest
+            {
+                AssetPaths = parentFirst ? new List<string> { parentPath, targetPath } :
+                    new List<string> { targetPath, parentPath }, SnapshotDirectory = snapshotDirectory
+            };
+            VMFrameworkSerializationSnapshotTool.Capture(request);
+            var result = VMFrameworkSerializationSnapshotTool.Apply(request);
+            Assert.That(result.VerifiedAssetPaths, Is.EqualTo(request.AssetPaths));
+            Assert.That(parent == null || target == null, Is.False);
+            Assert.That(parent.reference, Is.SameAs(target));
+            Assert.That(AssetDatabase.LoadAssetAtPath<Host>(parentPath), Is.SameAs(parent));
+            Assert.That(AssetDatabase.LoadAssetAtPath<Host>(targetPath), Is.SameAs(target));
+        }
+
+        [Test]
         public void Apply_RejectsFilesChangedAfterCapture()
         {
             Host asset = ScriptableObject.CreateInstance<Host>();

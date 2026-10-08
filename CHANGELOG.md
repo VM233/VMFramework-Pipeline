@@ -2,6 +2,16 @@
 
 All notable changes to this package are documented here.
 
+## [3.0.26] - 2026-10-09
+
+### Fixed
+
+- Preserve persistent asset identity during native serialization verification. Read the
+  saved disk graph into an independent native copy and release that copy, rather than
+  unloading assets still referenced by GeneralSettings, providers or Inspectors.
+- Cover later parent saves and both parent/target batch orders with reference-identity
+  regressions alongside existing native value, cycle, null and source-hash checks.
+
 ## [3.0.25] - 2026-10-06
 
 ### Changed
