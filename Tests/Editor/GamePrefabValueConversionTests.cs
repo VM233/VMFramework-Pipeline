@@ -20,6 +20,33 @@ namespace VMFramework.Pipeline.Editor.Tests
         {
         }
 
+        [Test]
+        public void Inspection_TransportPreservesNativePrefabFileIdAsDecimalString()
+        {
+            string directory = "Assets/__PrefabReferenceInspection_" + Guid.NewGuid().ToString("N");
+            AssetDatabase.CreateFolder("Assets", System.IO.Path.GetFileName(directory));
+            var source = new GameObject("Reference Root");
+            try
+            {
+                var child = new GameObject("Referenced Child");
+                child.transform.SetParent(source.transform);
+                var prefab = PrefabUtility.SaveAsPrefabAsset(source, directory + "/Reference.prefab");
+                var target = prefab.transform.GetChild(0).gameObject;
+                Assert.That(AssetDatabase.TryGetGUIDAndLocalFileIdentifier(target, out _, out long exact), Is.True);
+                var method = typeof(VMFrameworkPipelineGamePrefabTools).GetMethod("DescribeSerializedValue", BindingFlags.NonPublic | BindingFlags.Static);
+                var descriptor = (Dictionary<string, object>)method.Invoke(null, new object[] { target, 0, 4, 20, new HashSet<object>() });
+                Assert.That(descriptor["fileID"], Is.TypeOf<string>());
+                Assert.That(descriptor["fileID"], Is.EqualTo(exact.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+                var transported = (Dictionary<string, object>)VMUnityAutomation.Editor.VmJsonContract.ToTransportValue(descriptor);
+                Assert.That(transported["fileID"], Is.EqualTo(descriptor["fileID"]));
+            }
+            finally
+            {
+                Object.DestroyImmediate(source);
+                AssetDatabase.DeleteAsset(directory);
+            }
+        }
+
         private sealed class CollectionFixture
         {
             public HashSet<string> gameTags = new();

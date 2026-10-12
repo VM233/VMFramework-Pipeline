@@ -677,7 +677,8 @@ namespace VMFramework.Pipeline.Editor
                 return new Dictionary<string, object>
                 {
                     { "$type", type.FullName }, { "name", unityObject.name },
-                    { "assetPath", AssetDatabase.GetAssetPath(unityObject) }, { "guid", guid }, { "fileID", fileID }
+                    { "assetPath", AssetDatabase.GetAssetPath(unityObject) }, { "guid", guid },
+                    { "fileID", fileID.ToString(CultureInfo.InvariantCulture) }
                 };
             }
 

@@ -2,6 +2,16 @@
 
 All notable changes to this package are documented here.
 
+## [3.0.27] - 2026-10-13
+
+### Fixed
+
+- Emit exact native Unity Object file IDs as invariant decimal strings in GamePrefab
+  inspection and update snapshots. Numeric JSON transports can no longer round
+  64-bit Sprite and Prefab references before a subsequent structured update.
+- Cover native Prefab child identity through the production inspection descriptor
+  and Automation transport conversion.
+
 ## [3.0.26] - 2026-10-09
 
 ### Fixed

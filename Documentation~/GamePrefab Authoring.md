@@ -12,7 +12,10 @@ structured values are populated.
 
 Unity Object references accept an asset path or an identity descriptor containing
 `assetPath` and optional `guid` and `fileID`. Use the identity descriptor when a
-file contains multiple compatible objects. The reference resolver owns identity
+file contains multiple compatible objects. Inspection emits `fileID` as an exact decimal string; pass
+that string unchanged to creation or update instead of converting it to a JSON
+number. Both numeric and decimal-string inputs are accepted by the typed resolver.
+The reference resolver owns identity
 validation and reports ambiguous or missing references at the authored member.
 
 Creation receives identity through its root `id` argument. Supplying `id` or `_id`
