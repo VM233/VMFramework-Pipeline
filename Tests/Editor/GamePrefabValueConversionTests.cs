@@ -42,7 +42,7 @@ namespace VMFramework.Pipeline.Editor.Tests
             }
             finally
             {
-                Object.DestroyImmediate(source);
+                UnityEngine.Object.DestroyImmediate(source);
                 AssetDatabase.DeleteAsset(directory);
             }
         }
