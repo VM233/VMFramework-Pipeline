@@ -2,6 +2,18 @@
 
 All notable changes to this package are documented here.
 
+## [3.0.28] - 2026-10-19
+
+### Fixed
+
+- Compare GamePrefab scalar evidence as exact native typed values in update
+  diffs and rollback verification. Adjacent floating-point values and values
+  with equal display strings no longer disappear from change evidence.
+- Return typed before/after diff values and explicit presence flags so absent
+  members remain distinct from present null values.
+- Cover the saved Rect boundary witness, adjacent doubles, scalar type/null
+  collisions, empty collections and the native save/import/readback transaction.
+
 ## [3.0.27] - 2026-10-13
 
 ### Fixed

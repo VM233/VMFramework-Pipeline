@@ -215,8 +215,7 @@ namespace VMFramework.Pipeline.Editor
                 }
                 return true;
             }
-            return Equals(left, right) || string.Equals(left.ToString(), right.ToString(),
-                StringComparison.Ordinal);
+            return Equals(left, right);
         }
 
         private static GamePrefabInfo GetSingleGamePrefabInfo(string id)
@@ -749,22 +748,26 @@ namespace VMFramework.Pipeline.Editor
 
         private static List<Dictionary<string, object>> BuildValueDiff(object before, object after)
         {
-            var beforeFlat = new Dictionary<string, string>();
-            var afterFlat = new Dictionary<string, string>();
+            var beforeFlat = new Dictionary<string, object>();
+            var afterFlat = new Dictionary<string, object>();
             FlattenValue("$", before, beforeFlat);
             FlattenValue("$", after, afterFlat);
             var keys = new HashSet<string>(beforeFlat.Keys);
             keys.UnionWith(afterFlat.Keys);
             return keys.OrderBy(key => key)
-                .Where(key => beforeFlat.GetValueOrDefault(key) != afterFlat.GetValueOrDefault(key))
+                .Where(key => beforeFlat.ContainsKey(key) != afterFlat.ContainsKey(key) ||
+                              !SerializedValuesEqual(beforeFlat.GetValueOrDefault(key),
+                                  afterFlat.GetValueOrDefault(key)))
                 .Select(key => new Dictionary<string, object>
                 {
                     { "path", key }, { "before", beforeFlat.GetValueOrDefault(key) },
-                    { "after", afterFlat.GetValueOrDefault(key) }
+                    { "after", afterFlat.GetValueOrDefault(key) },
+                    { "beforePresent", beforeFlat.ContainsKey(key) },
+                    { "afterPresent", afterFlat.ContainsKey(key) }
                 }).ToList();
         }
 
-        private static void FlattenValue(string path, object value, IDictionary<string, string> output)
+        private static void FlattenValue(string path, object value, IDictionary<string, object> output)
         {
             if (value is Dictionary<string, object> dictionary)
             {
@@ -774,9 +777,9 @@ namespace VMFramework.Pipeline.Editor
             {
                 var index = 0;
                 foreach (var item in enumerable) FlattenValue($"{path}[{index++}]", item, output);
-                if (index == 0) output[path] = "[]";
+                if (index == 0) output[path] = Array.Empty<object>();
             }
-            else output[path] = Convert.ToString(value, CultureInfo.InvariantCulture) ?? "null";
+            else output[path] = value;
         }
 
         private static object DescribeSimpleCollection(object collection)

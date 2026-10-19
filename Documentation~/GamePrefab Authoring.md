@@ -29,6 +29,12 @@ rollback and semantic readback contract. Inspect the returned nominal GamePrefab
 reference after either operation and run global GamePrefab validation after the
 complete authoring task.
 
+Update diffs compare native typed scalar values exactly. They retain typed
+`before` and `after` values and `beforePresent` / `afterPresent` flags, including
+one-unit float or double changes. Presence flags distinguish an absent member
+from a present null. Rollback verification consumes the same exact typed
+descriptor equality; display formatting never determines whether values match.
+
 ## Runtime inspection and UI query scopes
 
 Runtime panel visibility reports input permission separately as `uiEnabled`.

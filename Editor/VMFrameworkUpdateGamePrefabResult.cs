@@ -37,7 +37,7 @@ namespace VMFramework.Pipeline.Editor
 
         [VmRequired]
         [VmJsonProperty("diff")]
-        [Description("Semantic differences produced by the committed operations.")]
+        [Description("Exact typed semantic leaf differences with before/after values and beforePresent/afterPresent flags. Missing members are distinct from present null values.")]
         public List<Dictionary<string, object>> Diff { get; set; }
 
         [VmJsonProperty("before")]

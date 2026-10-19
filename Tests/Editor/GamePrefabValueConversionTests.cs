@@ -452,6 +452,170 @@ namespace VMFramework.Pipeline.Editor.Tests
             }
         }
 
+        [Test]
+        public void SemanticEvidence_PreservesAdjacentNativeRectFloats()
+        {
+            MethodInfo describe = GetPrivateMethod("DescribeSerializedValue");
+            var before = new Rect(-0.64f, -0.48f, 1.28f, 1f);
+            var after = before;
+            after.y = -0.48000001907348633f;
+            object beforeDescriptor = describe.Invoke(null,
+                new object[] { before, 0, 4, 8, new HashSet<object>() });
+            object afterDescriptor = describe.Invoke(null,
+                new object[] { after, 0, 4, 8, new HashSet<object>() });
+            var diff = (List<Dictionary<string, object>>)GetPrivateMethod("BuildValueDiff")
+                .Invoke(null, new[] { beforeDescriptor, afterDescriptor });
+
+            Assert.That(diff, Has.Count.EqualTo(1));
+            Assert.That(diff[0]["path"], Is.EqualTo("$.m_YMin"));
+            Assert.That(diff[0]["before"], Is.TypeOf<float>());
+            Assert.That(diff[0]["after"], Is.TypeOf<float>());
+            Assert.That(BitConverter.GetBytes((float)diff[0]["before"]),
+                Is.EqualTo(BitConverter.GetBytes(before.y)));
+            Assert.That(BitConverter.GetBytes((float)diff[0]["after"]),
+                Is.EqualTo(BitConverter.GetBytes(after.y)));
+            Assert.That(GetPrivateMethod("SerializedValuesEqual").Invoke(null,
+                new[] { beforeDescriptor, afterDescriptor }), Is.False);
+        }
+
+        [Test]
+        public void SemanticEvidence_PreservesAdjacentDoubles()
+        {
+            var before = new Dictionary<string, object> { ["value"] = 1d };
+            var after = new Dictionary<string, object> { ["value"] = 1.0000000000000002d };
+            var diff = (List<Dictionary<string, object>>)GetPrivateMethod("BuildValueDiff")
+                .Invoke(null, new object[] { before, after });
+
+            Assert.That(diff, Has.Count.EqualTo(1));
+            Assert.That(diff[0]["before"], Is.TypeOf<double>());
+            Assert.That(diff[0]["after"], Is.TypeOf<double>());
+            Assert.That(BitConverter.GetBytes((double)diff[0]["after"]),
+                Is.EqualTo(BitConverter.GetBytes(1.0000000000000002d)));
+            Assert.That(GetPrivateMethod("SerializedValuesEqual").Invoke(null,
+                new object[] { before, after }), Is.False);
+        }
+
+        [TestCase(null, "null")]
+        [TestCase(1, "1")]
+        [TestCase(false, "False")]
+        [TestCase('x', "x")]
+        [TestCase(1d, "1")]
+        public void SemanticEvidence_DistinguishesScalarTypesAndNull(object beforeValue,
+            object afterValue)
+        {
+            var before = new Dictionary<string, object> { ["value"] = beforeValue };
+            var after = new Dictionary<string, object> { ["value"] = afterValue };
+            var diff = (List<Dictionary<string, object>>)GetPrivateMethod("BuildValueDiff")
+                .Invoke(null, new object[] { before, after });
+
+            Assert.That(diff, Has.Count.EqualTo(1));
+            Assert.That(diff[0]["before"], Is.EqualTo(beforeValue));
+            Assert.That(diff[0]["after"], Is.EqualTo(afterValue));
+            Assert.That(GetPrivateMethod("SerializedValuesEqual").Invoke(null,
+                new object[] { before, after }), Is.False);
+        }
+
+        [Test]
+        public void SemanticEvidence_DistinguishesEmptyCollectionAndText()
+        {
+            var before = new Dictionary<string, object> { ["value"] = Array.Empty<object>() };
+            var after = new Dictionary<string, object> { ["value"] = "[]" };
+            var diff = (List<Dictionary<string, object>>)GetPrivateMethod("BuildValueDiff")
+                .Invoke(null, new object[] { before, after });
+
+            Assert.That(diff, Has.Count.EqualTo(1));
+            Assert.That(diff[0]["before"], Is.Empty.And.Not.TypeOf<string>());
+            Assert.That(diff[0]["after"], Is.EqualTo("[]"));
+        }
+
+        [Test]
+        public void SemanticEvidence_DistinguishesAbsentAndPresentNull()
+        {
+            var before = new Dictionary<string, object>();
+            var after = new Dictionary<string, object> { ["value"] = null };
+            var diff = (List<Dictionary<string, object>>)GetPrivateMethod("BuildValueDiff")
+                .Invoke(null, new object[] { before, after });
+
+            Assert.That(diff, Has.Count.EqualTo(1));
+            Assert.That(diff[0]["beforePresent"], Is.False);
+            Assert.That(diff[0]["afterPresent"], Is.True);
+            Assert.That(GetPrivateMethod("SerializedValuesEqual").Invoke(null,
+                new object[] { before, after }), Is.False);
+        }
+
+        [Test]
+        public void SemanticEvidence_EqualNestedNativeValuesRemainEqual()
+        {
+            var before = new Dictionary<string, object>
+                { ["items"] = new object[] { -0.48f, 1d, null, Array.Empty<object>() } };
+            var after = new Dictionary<string, object>
+                { ["items"] = new object[] { -0.48f, 1d, null, Array.Empty<object>() } };
+            var diff = (List<Dictionary<string, object>>)GetPrivateMethod("BuildValueDiff")
+                .Invoke(null, new object[] { before, after });
+
+            Assert.That(diff, Is.Empty);
+            Assert.That(GetPrivateMethod("SerializedValuesEqual").Invoke(null,
+                new object[] { before, after }), Is.True);
+        }
+
+        [Test]
+        public void UpdateGamePrefab_SaveReadbackPreservesExactScalarDifferences()
+        {
+            string suffix = Guid.NewGuid().ToString("N");
+            string id = "vmframework_pipeline_scalar_" + suffix;
+            const string folder = "Assets/__VMFrameworkPipelineScalarTests";
+            string wrapperPath = folder + "/Scalar " + suffix + ".asset";
+            string settingPath = folder + "/Scalar Setting " + suffix + ".asset";
+            if (!AssetDatabase.IsValidFolder(folder))
+                AssetDatabase.CreateFolder("Assets", "__VMFrameworkPipelineScalarTests");
+            var wrapper = ScriptableObject.CreateInstance<GamePrefabSingleWrapper>();
+            wrapper.InitGamePrefabs(new IGamePrefab[]
+            {
+                new RenameFixtureGamePrefab
+                {
+                    id = id, footprint = new Rect(-0.64f, -0.48f, 1.28f, 1f), precision = 1d
+                }
+            });
+            AssetDatabase.CreateAsset(wrapper, wrapperPath);
+            var setting = ScriptableObject.CreateInstance<RenameFixtureGamePrefabGeneralSetting>();
+            AssetDatabase.CreateAsset(setting, settingPath);
+            setting.AddToInitialGamePrefabProviders(wrapper);
+            AssetDatabase.SaveAssets();
+            try
+            {
+                var reference = VMFrameworkPipelineTools.FindGamePrefab(
+                    new VMFrameworkFindGamePrefabRequest { Id = id }).GamePrefabs.Single();
+                var result = VMFrameworkPipelineGamePrefabTools.UpdateGamePrefab(
+                    new VMFrameworkUpdateGamePrefabRequest
+                    {
+                        GamePrefab = reference, IncludeSnapshots = true, MaxDepth = 8,
+                        MaxCollectionItems = 16,
+                        Operations = new List<VMFrameworkGamePrefabUpdateOperation>
+                        {
+                            new() { Type = VMFrameworkGamePrefabUpdateOperationKind.Set,
+                                Path = "footprint.y", Value = -0.48000001907348633d },
+                            new() { Type = VMFrameworkGamePrefabUpdateOperationKind.Set,
+                                Path = "precision", Value = 1.0000000000000002d }
+                        }
+                    });
+                Assert.That(result.TerminalState, Is.EqualTo("committed"));
+                Assert.That(result.CommitEvidence["semanticReadback"], Is.True);
+                Assert.That(result.Diff, Has.Count.EqualTo(2));
+                Assert.That(result.Diff.Single(x => (string)x["path"] == "$.footprint.m_YMin")
+                    ["after"], Is.EqualTo(-0.48000001907348633f));
+                Assert.That(result.Diff.Single(x => (string)x["path"] == "$.precision")
+                    ["after"], Is.EqualTo(1.0000000000000002d));
+            }
+            finally
+            {
+                AssetDatabase.DeleteAsset(settingPath);
+                AssetDatabase.DeleteAsset(wrapperPath);
+                if (AssetDatabase.IsValidFolder(folder) &&
+                    AssetDatabase.FindAssets("", new[] { folder }).Length == 0)
+                    AssetDatabase.DeleteAsset(folder);
+            }
+        }
+
         private static MethodInfo GetPrivateMethod(string name)
         {
             MethodInfo method = typeof(VMFrameworkPipelineGamePrefabTools).GetMethod(name,
