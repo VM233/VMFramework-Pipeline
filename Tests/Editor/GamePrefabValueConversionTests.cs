@@ -381,9 +381,8 @@ namespace VMFramework.Pipeline.Editor.Tests
             string newId = $"vmframework_pipeline_rename_{suffix}_new";
             const string testFolder = "Assets/__VMFrameworkPipelineTests";
             string wrapperPath = $"{testFolder}/RenameGamePrefab_{suffix}.asset";
-            string generalSettingPath =
-                $"{ConfigurationPath.DEFAULT_GENERAL_SETTINGS_PATH}/" +
-                $"RenameGamePrefabGeneralSetting_{suffix}.asset";
+            string generalSettingPath = GeneralSettingFixturePath(
+                $"RenameGamePrefabGeneralSetting_{suffix}.asset");
 
             if (AssetDatabase.IsValidFolder(testFolder) == false)
             {
@@ -565,7 +564,7 @@ namespace VMFramework.Pipeline.Editor.Tests
             string id = "vmframework_pipeline_scalar_" + suffix;
             const string folder = "Assets/__VMFrameworkPipelineScalarTests";
             string wrapperPath = folder + "/Scalar " + suffix + ".asset";
-            string settingPath = folder + "/Scalar Setting " + suffix + ".asset";
+            string settingPath = GeneralSettingFixturePath("Scalar Evidence Setting " + suffix + ".asset");
             if (!AssetDatabase.IsValidFolder(folder))
                 AssetDatabase.CreateFolder("Assets", "__VMFrameworkPipelineScalarTests");
             var wrapper = ScriptableObject.CreateInstance<GamePrefabSingleWrapper>();
@@ -615,6 +614,10 @@ namespace VMFramework.Pipeline.Editor.Tests
                     AssetDatabase.DeleteAsset(folder);
             }
         }
+
+        private static string GeneralSettingFixturePath(string name) =>
+            VMFrameworkPipelineTools.GetGeneralSettingsSearchFolders()
+                .First(AssetDatabase.IsValidFolder) + "/" + name;
 
         private static MethodInfo GetPrivateMethod(string name)
         {

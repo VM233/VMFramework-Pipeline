@@ -39,3 +39,19 @@ one bounded two-asset native fixture. Status: PASS for implementation admission.
 Compilation, native regression and formal CLI acceptance remain unverified until
 their receipts are retained. The public diff preserves typed before/after values
 and explicit presence flags; consumers must not infer absence from a string.
+
+## Native registration admission correction
+
+The first native package run `b79dccfd28c8` completes all11 independent cases:
+10 scalar/equality controls pass, while the native save transaction rejects its
+fixture before mutation because its GeneralSetting is outside the authoritative
+search folders. This is a test producer defect, not a relaxed registration rule.
+Both the scalar and existing rename transaction fixtures now obtain their asset
+directory from the actual production GeneralSetting search-folder owner and its
+existing native valid-folder fact. The owner publishes at most two folders, so
+this adds at most two native folder observations per fixture, O(1), with no asset
+scan, fallback, copied folder configuration or production registration change.
+The next focused run includes the11 original cases and the existing rename case,
+12 total, serially; at most one two-asset fixture is live. Existing scalar and
+registration assertions are retained. Admission budget remains PASS; the first
+failed native receipt remains separate from the corrected replay.

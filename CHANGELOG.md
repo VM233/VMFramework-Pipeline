@@ -2,6 +2,14 @@
 
 All notable changes to this package are documented here.
 
+## [3.0.29] - 2026-10-19
+
+### Fixed
+
+- Create native scalar and rename transaction fixtures in an actual authoritative
+  GeneralSetting search folder. Projects with a configured settings directory
+  retain the same registration prerequisite and native save/readback assertions.
+
 ## [3.0.28] - 2026-10-19
 
 ### Fixed
