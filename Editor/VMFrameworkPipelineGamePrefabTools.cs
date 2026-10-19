@@ -21,7 +21,7 @@ namespace VMFramework.Pipeline.Editor
         private const string UPDATE_GAME_PREFAB_TOOL_NAME = "vmframework/update-game-prefab";
 
         [VmProjectTool(INSPECT_GAME_PREFAB_TOOL_NAME,
-            Description = "Inspect the full serialized contents of one VMFramework GamePrefab, including nested configs, lists, arrays, Odin fields, and Unity asset references.",
+            Description = "Inspect the serialized contents of one VMFramework GamePrefab, including nested configs, lists, arrays, Odin fields, and Unity asset references. Repeated managed objects publish an exact JSON Pointer $ref to their first descriptor, including actual ancestor cycles.",
             ReadOnly = true)]
         public static VMFrameworkInspectGamePrefabResult InspectGamePrefab(
             VMFrameworkInspectGamePrefabRequest request)
@@ -32,7 +32,7 @@ namespace VMFramework.Pipeline.Editor
             int maxItems = request.MaxCollectionItems ??
                            VMFrameworkPipelineSettingsManager.GamePrefabCollectionItemLimit;
             object serializedValue = DescribeSerializedValue(info.gamePrefab, 0,
-                maxDepth, maxItems, new HashSet<object>(ReferenceComparer.Instance));
+                maxDepth, maxItems, new Dictionary<object, string>(ReferenceComparer.Instance), "#");
             if (!(serializedValue is Dictionary<string, object> serializedDictionary))
                 throw new InvalidOperationException("A GamePrefab must serialize as a JSON object.");
             return new VMFrameworkInspectGamePrefabResult
@@ -76,7 +76,7 @@ namespace VMFramework.Pipeline.Editor
             bool includeSnapshots = request.IncludeSnapshots ??
                                     VMFrameworkPipelineSettingsManager.IncludeGamePrefabUpdateSnapshots;
             var before = DescribeSerializedValue(info.gamePrefab, 0, maxDepth, maxItems,
-                new HashSet<object>(ReferenceComparer.Instance));
+                new Dictionary<object, string>(ReferenceComparer.Instance), "#");
             var summaries = new List<Dictionary<string, object>>();
 
             try
@@ -108,7 +108,7 @@ namespace VMFramework.Pipeline.Editor
                         "Committed GamePrefab readback resolved to a different Wrapper asset.");
                 }
                 var after = DescribeSerializedValue(refreshedInfo.gamePrefab, 0, maxDepth, maxItems,
-                    new HashSet<object>(ReferenceComparer.Instance));
+                    new Dictionary<object, string>(ReferenceComparer.Instance), "#");
                 VMFrameworkPipelineAssetSnapshotStore.Snapshot committedSnapshot =
                     VMFrameworkPipelineAssetSnapshotStore.Capture(wrapperPath);
                 var result = new VMFrameworkUpdateGamePrefabResult
@@ -145,7 +145,7 @@ namespace VMFramework.Pipeline.Editor
                     RefreshGamePrefabRegistry();
                     GamePrefabInfo restoredInfo = GetSingleGamePrefabInfo(id);
                     object restored = DescribeSerializedValue(restoredInfo.gamePrefab, 0,
-                        maxDepth, maxItems, new HashSet<object>(ReferenceComparer.Instance));
+                        maxDepth, maxItems, new Dictionary<object, string>(ReferenceComparer.Instance), "#");
                     if (!SerializedValuesEqual(before, restored))
                     {
                         rollbackErrors.Add(
@@ -656,7 +656,7 @@ namespace VMFramework.Pipeline.Editor
         }
 
         private static object DescribeSerializedValue(object value, int depth, int maxDepth, int maxItems,
-            ISet<object> visited)
+            IDictionary<object, string> described, string path)
         {
             if (value == null) return null;
             var type = value.GetType();
@@ -682,8 +682,12 @@ namespace VMFramework.Pipeline.Editor
             }
 
             if (depth >= maxDepth) return new Dictionary<string, object> { { "$type", type.FullName }, { "$truncated", true } };
-            if (!type.IsValueType && !visited.Add(value))
-                return new Dictionary<string, object> { { "$type", type.FullName }, { "$cycle", true } };
+            if (!type.IsValueType)
+            {
+                if (described.TryGetValue(value, out string firstPath))
+                    return new Dictionary<string, object> { { "$type", type.FullName }, { "$ref", firstPath } };
+                described.Add(value, path);
+            }
 
             if (value is IEnumerable enumerable && IsLocalizedReference(type) == false)
             {
@@ -692,7 +696,8 @@ namespace VMFramework.Pipeline.Editor
                 foreach (var item in enumerable)
                 {
                     if (items.Count < maxItems)
-                        items.Add(DescribeSerializedValue(item, depth + 1, maxDepth, maxItems, visited));
+                        items.Add(DescribeSerializedValue(item, depth + 1, maxDepth, maxItems, described,
+                            path + "/items/" + total.ToString(CultureInfo.InvariantCulture)));
                     total++;
                 }
 
@@ -709,7 +714,8 @@ namespace VMFramework.Pipeline.Editor
                 object fieldValue;
                 try { fieldValue = field.GetValue(value); }
                 catch (Exception ex) { result[field.Name] = new Dictionary<string, object> { { "$error", ex.Message } }; continue; }
-                result[field.Name] = DescribeSerializedValue(fieldValue, depth + 1, maxDepth, maxItems, visited);
+                result[field.Name] = DescribeSerializedValue(fieldValue, depth + 1, maxDepth, maxItems, described,
+                    path + "/" + field.Name.Replace("~", "~0").Replace("/", "~1"));
             }
 
             return result;

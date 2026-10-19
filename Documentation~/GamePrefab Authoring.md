@@ -35,6 +35,15 @@ one-unit float or double changes. Presence flags distinguish an absent member
 from a present null. Rollback verification consumes the same exact typed
 descriptor equality; display formatting never determines whether values match.
 
+Inspection describes each unique managed object once. A repeated object carries
+its type and a `$ref` JSON Pointer to the first descriptor in the same result;
+`#` names the root, field components escape `~` and `/`, and collection entries
+use `/items/<index>`. This preserves acyclic sharing and actual ancestor cycles
+without expanding a repeated graph. A reference descriptor is inspection
+metadata, not a serialized field assignment. Consumers constructing independent
+values must resolve its actual target and reject unresolved references or cycles;
+they must never infer an empty value from missing descriptor content.
+
 ## Runtime inspection and UI query scopes
 
 Runtime panel visibility reports input permission separately as `uiEnabled`.

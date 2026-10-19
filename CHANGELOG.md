@@ -2,6 +2,15 @@
 
 All notable changes to this package are documented here.
 
+## [3.0.30] - 2026-10-19
+
+- Describe shared managed objects with an exact JSON Pointer reference to their
+  first descriptor, preserving target identity without calling acyclic aliases
+  cycles or recursively expanding repeated graphs. Actual ancestor cycles use
+  that same reference product.
+- Cover shared arrays, separate equal arrays and a genuine self-cycle while
+  retaining native identity and exact scalar transaction regressions.
+
 ## [3.0.29] - 2026-10-19
 
 ### Fixed

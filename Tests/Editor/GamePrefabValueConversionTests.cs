@@ -34,7 +34,7 @@ namespace VMFramework.Pipeline.Editor.Tests
                 var target = prefab.transform.GetChild(0).gameObject;
                 Assert.That(AssetDatabase.TryGetGUIDAndLocalFileIdentifier(target, out _, out long exact), Is.True);
                 var method = typeof(VMFrameworkPipelineGamePrefabTools).GetMethod("DescribeSerializedValue", BindingFlags.NonPublic | BindingFlags.Static);
-                var descriptor = (Dictionary<string, object>)method.Invoke(null, new object[] { target, 0, 4, 20, new HashSet<object>() });
+                var descriptor = (Dictionary<string, object>)method.Invoke(null, new object[] { target, 0, 4, 20, new Dictionary<object, string>(), "#" });
                 Assert.That(descriptor["fileID"], Is.TypeOf<string>());
                 Assert.That(descriptor["fileID"], Is.EqualTo(exact.ToString(System.Globalization.CultureInfo.InvariantCulture)));
                 var transported = (Dictionary<string, object>)VMUnityAutomation.Editor.VmJsonContract.ToTransportValue(descriptor);
@@ -45,6 +45,48 @@ namespace VMFramework.Pipeline.Editor.Tests
                 UnityEngine.Object.DestroyImmediate(source);
                 AssetDatabase.DeleteAsset(directory);
             }
+        }
+
+        private sealed class ReferenceGraphFixture
+        {
+            public int[] first, second;
+            public ReferenceGraphFixture next;
+        }
+
+        [Test]
+        public void Inspection_SharedArrayNamesItsActualFirstDescriptor()
+        {
+            var shared = new[] { 3, 5 };
+            var value = new ReferenceGraphFixture { first = shared, second = shared };
+            var method = typeof(VMFrameworkPipelineGamePrefabTools).GetMethod("DescribeSerializedValue", BindingFlags.NonPublic | BindingFlags.Static);
+            var descriptor = (Dictionary<string, object>)method.Invoke(null,
+                new object[] { value, 0, 4, 20, new Dictionary<object, string>(), "#" });
+            var first = (Dictionary<string, object>)descriptor["first"];
+            var second = (Dictionary<string, object>)descriptor["second"];
+            Assert.That(first["count"], Is.EqualTo(2));
+            Assert.That((IEnumerable)first["items"], Is.EqualTo(shared));
+            Assert.That(second["$ref"], Is.EqualTo("#/first"));
+            Assert.That(second.ContainsKey("$cycle"), Is.False);
+
+            value.second = new[] { 3, 5 };
+            var separate = (Dictionary<string, object>)method.Invoke(null,
+                new object[] { value, 0, 4, 20, new Dictionary<object, string>(), "#" });
+            var distinct = (Dictionary<string, object>)separate["second"];
+            Assert.That(distinct.ContainsKey("$ref"), Is.False);
+            Assert.That((IEnumerable)distinct["items"], Is.EqualTo(shared));
+        }
+
+        [Test]
+        public void Inspection_AncestorCycleNamesTheActualRootDescriptor()
+        {
+            var value = new ReferenceGraphFixture();
+            value.next = value;
+            var method = typeof(VMFrameworkPipelineGamePrefabTools).GetMethod("DescribeSerializedValue", BindingFlags.NonPublic | BindingFlags.Static);
+            var descriptor = (Dictionary<string, object>)method.Invoke(null,
+                new object[] { value, 0, 4, 20, new Dictionary<object, string>(), "#" });
+            var cycle = (Dictionary<string, object>)descriptor["next"];
+            Assert.That(cycle["$ref"], Is.EqualTo("#"));
+            Assert.That(cycle.ContainsKey("$cycle"), Is.False);
         }
 
         private sealed class CollectionFixture
@@ -240,7 +282,7 @@ namespace VMFramework.Pipeline.Editor.Tests
                 new object[] { rawValue, typeof(LocalizedString), "name" });
 
             var result = (Dictionary<string, object>)describe.Invoke(null,
-                new object[] { localizedString, 0, 8, 100, new HashSet<object>() });
+                new object[] { localizedString, 0, 8, 100, new Dictionary<object, string>(), "#" });
 
             Assert.That(result.ContainsKey("items"), Is.False,
                 "LocalizedString is a localized reference, not a semantic collection.");
@@ -259,7 +301,7 @@ namespace VMFramework.Pipeline.Editor.Tests
             UnityEngine.Object.DestroyImmediate(gameObject);
 
             var result = (Dictionary<string, object>)describe.Invoke(null,
-                new object[] { boxedReference, 0, 8, 100, new HashSet<object>() });
+                new object[] { boxedReference, 0, 8, 100, new Dictionary<object, string>(), "#" });
 
             Assert.That(result["$type"], Is.EqualTo(typeof(GameObject).FullName));
             Assert.That(result["$destroyed"], Is.EqualTo(true));
@@ -459,9 +501,9 @@ namespace VMFramework.Pipeline.Editor.Tests
             var after = before;
             after.y = -0.48000001907348633f;
             object beforeDescriptor = describe.Invoke(null,
-                new object[] { before, 0, 4, 8, new HashSet<object>() });
+                new object[] { before, 0, 4, 8, new Dictionary<object, string>(), "#" });
             object afterDescriptor = describe.Invoke(null,
-                new object[] { after, 0, 4, 8, new HashSet<object>() });
+                new object[] { after, 0, 4, 8, new Dictionary<object, string>(), "#" });
             var diff = (List<Dictionary<string, object>>)GetPrivateMethod("BuildValueDiff")
                 .Invoke(null, new[] { beforeDescriptor, afterDescriptor });
 

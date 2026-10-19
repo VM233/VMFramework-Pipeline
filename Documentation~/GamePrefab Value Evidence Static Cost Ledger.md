@@ -55,3 +55,29 @@ The next focused run includes the11 original cases and the existing rename case,
 12 total, serially; at most one two-asset fixture is live. Existing scalar and
 registration assertions are retained. Admission budget remains PASS; the first
 failed native receipt remains separate from the corrected replay.
+
+## Shared managed-reference evidence
+
+The public3.0.29 inspection of Field Camp publishes six `$cycle=true` descriptors
+for the same shared empty `SkillRequirement[]`. The global visited set conflates
+a previously described sibling with a cycle and loses its target identity. The
+owner will retain one reference-identity-to-first-JSON-Pointer map, using `#` for
+the root, escaped field components, and `/items/<index>` for a descriptor's
+collection entries. Every repeated object publishes only its type and `$ref`.
+Genuine ancestor cycles use that same precise reference product. There is no
+recursive alias expansion, copied graph, second serializer or changed depth,
+collection, save, registration, rollback or diff threshold.
+
+For U unique admitted reference objects and E retained member/item edges, the
+existing traversal still visits each unique object once and each edge once.
+The map replaces the existing U-entry set; each first entry also retains its
+descriptor pointer. Pointer length is bounded by the same depth and actual
+field/index names already visited; one pointer concatenation per retained edge
+adds O(total retained path characters), with no new Cartesian or recursive axis.
+Transient sibling pointers are discarded with the stack. The two focused graph
+controls each have at most4 objects,8 edges and depth4, below8KiB additional data.
+They cover an acyclic shared array, a separate-equal-array control and an actual
+self-cycle. Existing exact scalar/native save/rename and native fileID controls
+remain in the focused run. Public inspection and the isolated CLI scalar write
+must be replayed after adoption; the failed creation is not reclassified as a
+write or a successful test. Admission budget PASS for this fixed owner change.
