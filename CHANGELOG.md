@@ -1,5 +1,10 @@
 # Changelog
 
+## [3.0.31] - 2026-10-23
+
+- Require Automation 0.6.260 for logical JSON DOM response normalization through
+  the shared project-tool transport. Domain schemas and framework tools are unchanged.
+
 All notable changes to this package are documented here.
 
 ## [3.0.30] - 2026-10-19
