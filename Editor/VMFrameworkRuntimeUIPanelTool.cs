@@ -14,7 +14,7 @@ namespace VMFramework.Pipeline.Editor
 {
     [VmProjectTool(ToolName,
         ShortName = "vmf/runtime-ui-panel",
-        Description = "Open, close, bind, clear, inspect actual visibility, or persistently wait for OnOpen/OnPostClose on a VMFramework runtime UIPanel.",
+        Description = "Open, close, bind, clear, inspect actual visibility, or persistently wait for OnOpen/OnPostClose on a VMFramework runtime UIPanel. Unique panels must first be published by native initialization; an exact panelObjectID never falls back to creation.",
         InputSchemaJson = InputSchema,
         OutputSchemaJson = OutputSchema,
         SideEffects = VmProjectToolSideEffect.ChangesRuntimeState,
@@ -22,6 +22,7 @@ namespace VMFramework.Pipeline.Editor
         {
             "requires_play_mode",
             "ui_panel_manager_unavailable",
+            "ui_panel_initialization_pending",
             "ui_panel_not_found",
             "ui_panel_ambiguous",
             "ui_panel_has_no_bind_objects_manager",
@@ -111,7 +112,7 @@ namespace VMFramework.Pipeline.Editor
                         VMFrameworkRuntimeUIPanelEvents.Track(existing);
                     IUIPanel panel = existing != null
                         ? OpenExisting(manager, existing)
-                        : manager.GetAndOpen(panelID);
+                        : VMFrameworkRuntimeUIPanelAccess.Open(manager, panelID);
                     if (panel == null)
                     {
                         throw new VmProjectToolException("ui_panel_not_found",
@@ -318,12 +319,8 @@ namespace VMFramework.Pipeline.Editor
                 {
                     return exact;
                 }
-                if (!allowMissing)
-                {
-                    throw new VmProjectToolException("ui_panel_not_found",
-                        $"Object '{objectID}' is not the requested UIPanel '{panelID}'.");
-                }
-                return null;
+                throw new VmProjectToolException("ui_panel_not_found",
+                    $"Object '{objectID}' is not the requested UIPanel '{panelID}'.");
             }
 
             List<IUIPanel> opened = GetOpenedPanels(manager, panelID);

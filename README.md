@@ -44,7 +44,8 @@ VMFramework domain. The catalog is the command and schema authority.
 
 See [GamePrefab Authoring](Documentation~/GamePrefab%20Authoring.md),
 [New Project Settings](Documentation~/New%20Project%20Settings.md),
-[Configuration](Documentation~/configuration.md) and
+[Configuration](Documentation~/configuration.md),
+[Runtime Panel Ownership](Documentation~/Runtime%20Panel%20Ownership.md) and
 [Native Serialization Migration](Documentation~/Native%20Serialization%20Migration.md).
 Release changes appear in [CHANGELOG](CHANGELOG.md); licensing is in [LICENSE](LICENSE).
 

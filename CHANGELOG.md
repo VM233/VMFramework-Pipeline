@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.0.32] - 2026-10-25
+
+- Preserve native ownership of unique runtime panel creation; reject early open/bind with ui_panel_initialization_pending instead of corrupting initialization.
+- Reject mismatched exact panel identities and ambiguous item-session panel selection; reopen the selected existing instance.
+- Add focused native registry and selector regression tests; document lifecycle and creation boundaries.
+
 ## [3.0.31] - 2026-10-23
 
 - Require Automation 0.6.260 for logical JSON DOM response normalization through

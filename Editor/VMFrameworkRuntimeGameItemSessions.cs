@@ -411,6 +411,9 @@ namespace VMFramework.Pipeline.Editor
             if (panel == null && manager.TryGetOpenedPanels(panelID,
                     out IReadOnlyCollection<IUIPanel> openedPanels))
             {
+                if (openedPanels.Count > 1)
+                    throw new VmProjectToolException("ui_panel_ambiguous",
+                        $"UIPanel '{panelID}' has multiple opened instances; bind through runtime-ui-panel with an exact panelObjectID.");
                 panel = openedPanels.FirstOrDefault();
                 wasOpened = panel != null;
             }
@@ -419,8 +422,10 @@ namespace VMFramework.Pipeline.Editor
                 throw new VmProjectToolException("ui_panel_not_found",
                     $"UIPanel '{panelID}' has no existing instance to bind while openPanel=false.");
             }
-            if (panel == null || openPanel && !panel.IsOpened)
-                panel = manager.GetAndOpen(panelID);
+            if (panel == null)
+                panel = VMFrameworkRuntimeUIPanelAccess.Open(manager, panelID);
+            else if (openPanel && !panel.IsOpened)
+                manager.TryOpen(panel, null);
             if (panel == null)
             {
                 throw new VmProjectToolException("ui_panel_not_found",

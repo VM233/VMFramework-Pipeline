@@ -59,6 +59,8 @@ namespace VMFramework.Pipeline.Editor
                 "runtime_game_item_property_read_only",
                 "ui_panel_manager_unavailable",
                 "ui_panel_not_found",
+                "ui_panel_initialization_pending",
+                "ui_panel_ambiguous",
                 "ui_panel_has_no_bind_objects_manager",
                 "runtime_game_item_session_cleanup_failed",
             },
