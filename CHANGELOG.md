@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.33] - 2026-10-26
+
+- Reject non-Prefab GameItem types that the real runtime factory cannot create:
+  abstract/interface/open types, incompatible types and missing public default
+  constructors. Keep configuration-only and native Prefab construction semantics.
+- Add exact abstract generic event and corrected concrete-event regression cases.
+
 ## [3.0.32] - 2026-10-25
 
 - Preserve native ownership of unique runtime panel creation; reject early open/bind with ui_panel_initialization_pending instead of corrupting initialization.

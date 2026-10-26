@@ -19,7 +19,7 @@ namespace VMFramework.Pipeline.Editor
         private const int MaximumIssues = 5000;
 
         [VmProjectTool(ToolName,
-            Description = "Validate every discoverable VMFramework GamePrefabWrapper, including runtime registration reachability, null GamePrefab entries, missing or unreadable IPrefabProvider.Prefab references, and Prefab names that do not align with their GamePrefab ids and declared id suffixes.",
+            Description = "Validate every discoverable VMFramework GamePrefabWrapper, including runtime registration reachability, constructible non-Prefab GameItem types, null GamePrefab entries, missing or unreadable IPrefabProvider.Prefab references, and Prefab names that do not align with their GamePrefab ids and declared id suffixes.",
             ReadOnly = true,
             ErrorCodes = new[]
             {
@@ -78,6 +78,9 @@ namespace VMFramework.Pipeline.Editor
                     }
 
                     gamePrefabCount++;
+                    var constructionIssue = CreateConstructionIssue(wrapper.Path, gamePrefab);
+                    if (constructionIssue != null)
+                        AddIssue(constructionIssue, issues, maxIssues, ref errorCount);
                     VMFrameworkGamePrefabValidationIssue registrationIssue =
                         CreateRegistrationIssue(wrapper.Path, gamePrefab,
                             runtimeGamePrefabs);
@@ -136,6 +139,21 @@ namespace VMFramework.Pipeline.Editor
                 Truncated = issues.Count < errorCount,
                 Issues = issues,
             };
+        }
+
+        internal static VMFrameworkGamePrefabValidationIssue CreateConstructionIssue(
+            string wrapperPath, IGamePrefab gamePrefab)
+        {
+            if (gamePrefab is IPrefabProvider) return null;
+            Type type = gamePrefab.GameItemType;
+            if (type == null) return null;
+            if (type.IsAbstract || type.IsInterface || type.ContainsGenericParameters ||
+                !typeof(IGameItem).IsAssignableFrom(type) ||
+                (!type.IsValueType && type.GetConstructor(Type.EmptyTypes) == null))
+                return CreateIssue("game_item_type_not_constructible", gamePrefab, wrapperPath,
+                    "IGamePrefab.GameItemType", $"GamePrefab '{gamePrefab.id}' declares '{type}' for " +
+                    "Activator.CreateInstance, which requires a closed concrete IGameItem with a public parameterless constructor.");
+            return null;
         }
 
         internal static VMFrameworkGamePrefabValidationIssue CreateRegistrationIssue(

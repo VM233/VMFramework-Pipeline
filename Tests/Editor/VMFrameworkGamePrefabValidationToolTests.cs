@@ -11,6 +11,42 @@ namespace VMFramework.Pipeline.Editor.Tests
 {
     public class VMFrameworkGamePrefabValidationToolTests
     {
+        [TestCase(typeof(GameItem))]
+        [TestCase(typeof(VMFramework.GameEvents.ParameterizedGameEvent<int>))]
+        [TestCase(typeof(VMFramework.GameEvents.ParameterizedGameEvent<>))]
+        [TestCase(typeof(IGameItem))]
+        [TestCase(typeof(string))]
+        [TestCase(typeof(ConstructorOnlyItem))]
+        public void ConstructionReviewRejectsTypesThatCannotReachTheRuntimeFactory(Type type)
+        {
+            var config = new ConstructedGamePrefab { id = "construction_fixture", ItemType = type };
+            var issue = VMFrameworkGamePrefabValidationTool.CreateConstructionIssue("Assets/Fixture.asset", config);
+            Assert.That(issue?.Code, Is.EqualTo("game_item_type_not_constructible"));
+            Assert.That(issue?.Member, Is.EqualTo("IGamePrefab.GameItemType"));
+        }
+
+        [Test]
+        public void ConstructionReviewPreservesConcreteConfigOnlyAndPrefabConstructionContracts()
+        {
+            var config = new ConstructedGamePrefab { ItemType = typeof(VMFramework.Containers.ContainerItemChangedEvent) };
+            Assert.That(VMFrameworkGamePrefabValidationTool.CreateConstructionIssue("", config), Is.Null);
+            config.ItemType = null;
+            Assert.That(VMFrameworkGamePrefabValidationTool.CreateConstructionIssue("", config), Is.Null);
+            Assert.That(VMFrameworkGamePrefabValidationTool.CreateConstructionIssue("", new FixtureGamePrefab()), Is.Null);
+        }
+
+        [Serializable]
+        private sealed class ConstructedGamePrefab : GamePrefab
+        {
+            public Type ItemType;
+            public override Type GameItemType => ItemType;
+        }
+
+        public sealed class ConstructorOnlyItem : GameItem
+        {
+            public ConstructorOnlyItem(int argument) { }
+        }
+
         [Test]
         public void CreateRegistrationIssue_RequiresExactRuntimeReachability()
         {

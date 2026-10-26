@@ -29,6 +29,12 @@ rollback and semantic readback contract. Inspect the returned nominal GamePrefab
 reference after either operation and run global GamePrefab validation after the
 complete authoring task.
 
+Global validation also checks non-Prefab `GameItemType` against the actual
+`Activator.CreateInstance` construction contract, without creating runtime items.
+Abstract generic event bases require a concrete event subclass. A null type
+remains a configuration-only contract; Prefab-backed objects keep native Prefab
+construction. See the construction static cost ledger for scan bounds.
+
 Update diffs compare native typed scalar values exactly. They retain typed
 `before` and `after` values and `beforePresent` / `afterPresent` flags, including
 one-unit float or double changes. Presence flags distinguish an absent member
